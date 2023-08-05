@@ -12,6 +12,7 @@ use Illuminate\Http\RedirectResponse;
 
 class TodoController extends Controller
 {
+    private string $timezone = "Asia/Singapore";
     /**
      * Display a listing of the resource.
      */
@@ -22,8 +23,8 @@ class TodoController extends Controller
             // Show ALL not completed (Null or empty)
             ->whereNull('completed_at')
             ->orWhere('completed_at', '')
-            // And all completed today
-            ->orWhereDate('completed_at', today())
+            // And all completed today (Range of today)
+            ->orWhereBetween('completed_at', [now($this->timezone)->startOfDay(), now($this->timezone)->endOfDay()])
             ->orderByDesc('created_at')
             ->get([
                 'id',
@@ -104,10 +105,12 @@ class TodoController extends Controller
 
         if ($emptyPost) {
             // If empty post, toggle completed_at
-            $todo->completed_at = $todo->completed_at ? null : now();
+            $todo->completed_at = $todo->completed_at ? null : now($this->timezone);
+            $todo->save();
         } elseif ((isset($data['completed_at']) && $data['completed_at'] === 'on')) {
             // If completed_at=on, set completed_at to now()
-            $todo->completed_at = now();
+            $todo->completed_at = now($this->timezone);
+            $todo->save();
         } else {
             // Validate Data
             $data = $request->validate([
@@ -116,10 +119,10 @@ class TodoController extends Controller
                 'due_start' => 'nullable|date',
                 'due_end' => 'nullable|after:due_start',
             ]);
+            // Update todo
+            $todo->update($data);
         }
 
-        // Update todo
-        $todo->update($data);
 
         return redirect()->route('todo.index');
     }

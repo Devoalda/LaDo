@@ -116,8 +116,7 @@
                 <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
                     <h2 class="text-2xl font-semibold mb-4 text-green-500 dark:text-green-400">
                         Completed Today
-                        ({{ $todos->where('completed_at', '>=', \Carbon\Carbon::today())->where('completed_at', '<',
-                        \Carbon\Carbon::tomorrow())->count() }})
+                        ({{ $todos->where('completed_at', '>=', \Carbon\Carbon::today())->count() }})
                     </h2>
                     <div class="space-y-4">
                         @foreach ($todos as $todo)
