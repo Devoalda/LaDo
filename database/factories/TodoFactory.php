@@ -19,12 +19,12 @@ class TodoFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'due_start' => fake()->dateTimeBetween('-1 week', '+1 week'),
-            'due_end' => fake()->dateTimeBetween('+1 week', '+2 week'),
+            'due_start' => fake()->unixTime(),
+            'due_end' => fake()->unixTime(),
             'user_id' => fake()->uuid(),
             'completed_at' => null,
-            'created_at' => fake()->dateTimeBetween('-1 week', '+1 week'),
-            'updated_at' => fake()->dateTimeBetween('-1 week', '+1 week'),
+            'created_at' => fake()->unixTime(),
+            'updated_at' => fake()->unixTime(),
 
         ];
     }

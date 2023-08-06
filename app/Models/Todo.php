@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UuidTrait;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Todo extends Model
 {
@@ -17,7 +19,6 @@ class Todo extends Model
         'description',
         'due_start',
         'due_end',
-        'user_id',
         'completed_at',
     ];
 
@@ -29,4 +30,15 @@ class Todo extends Model
         "created_at" => "integer",
         "updated_at" => "integer",
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(projectTodo::class, 'project_todo', 'todo_id', 'project_id');
+    }
+
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTodoRequest;
 use App\Http\Requests\UpdateTodoRequest;
 use App\Models\Todo;
+use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -21,27 +22,22 @@ class TodoController extends Controller
      */
     public function index(): View|Application
     {
-        // Get all todos from database (todos table), where user_id is the same as the authenticated user
-        $todos = Todo::where('user_id', auth()->user()->id)
-            // Show ALL not completed (Null or empty)
-            ->whereNull('completed_at')
-            ->orWhere('completed_at', '')
-            // And all completed today (Range of today)
-            ->orWhereBetween('completed_at', [
-                strtotime(Carbon::today($this->timezone)),
-                strtotime(Carbon::tomorrow($this->timezone))
-            ])
-            ->orderByDesc('created_at')
-            ->get([
-                'id',
-                'title',
-                'description',
-                'completed_at',
-                'due_start',
-                'due_end'
-            ]);
+        $user = User::find(auth()->user()->id);
 
-        return view('todo.index', compact('todos'));
+        $projects = $user->projects;
+
+        $allTodos = [];
+        $allProjects = [];
+
+        foreach ($projects as $project) {
+            $todos = $project->todos;
+        }
+
+        return view('todo.index', [
+            'todos' => $todos->whereNull('completed_at')->values(),
+            'completed' => $todos->whereNotNull('completed_at')->values(),
+            'projects' => $projects,
+        ]);
     }
 
     /**
@@ -65,8 +61,15 @@ class TodoController extends Controller
             'due_end' => 'nullable|after:due_start',
         ]);
 
+        $due_end = match (true) {
+            isset($validatedData['due_end']) => strtotime($validatedData['due_end']),
+            isset($validatedData['due_start']) => strtotime($validatedData['due_start']),
+            default => null,
+        };
+
         $validatedData = array_merge($validatedData, [
-            'due_end' => strtotime($validatedData['due_end'] ?? $validatedData['due_start'] ?? null) ?? null,
+            // due_end = due_start if due_end is not provided and due_start is provided or null
+            'due_end' => $due_end,
             'user_id' => auth()->user()->id,
         ]);
 
@@ -76,7 +79,15 @@ class TodoController extends Controller
         if (isset($validatedData['due_end']))
             $validatedData['due_end'] = strtotime($validatedData['due_end']);
 
-        Todo::create($validatedData);
+        $todo = new Todo($validatedData);
+
+
+        $user = User::find(auth()->user()->id);
+        $project = $user->projects->first();
+        $project->todo()->save($todo);
+
+        // Set flash message
+        session()->flash('success', 'Todo created successfully.');
 
         return redirect()->route('todo.index');
     }
@@ -118,7 +129,7 @@ class TodoController extends Controller
         if (Request::filled('completed_at')) {
             $todo->completed_at = Request::input('completed_at') === 'on' ? strtotime(now($this->timezone)) : null;
             $todo->save();
-            return redirect()->route('todo.index');
+            return redirect()->route('todo.index')->with('success', 'Good job! Todo completed.');
         } else {
             // If 'completed_at' is not provided, toggle its value (only if the request is empty)
             if (empty($data))
@@ -141,7 +152,7 @@ class TodoController extends Controller
 
         $todo->update($data);
 
-        return redirect()->route('todo.index');
+        return redirect()->route('todo.index')->with('success', 'Todo updated successfully.');
     }
 
 
@@ -154,6 +165,9 @@ class TodoController extends Controller
             ->where('id', $todo->id)
             ->firstOrFail();
         $todo->delete();
+
+        // Set flash message
+        session()->flash('success', 'Todo deleted successfully.');
 
         return redirect()->route('todo.index');
     }
