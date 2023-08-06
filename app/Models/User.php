@@ -5,6 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -45,13 +47,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function projects(): HasManyThrough
+    public function projects(): BelongsToMany
     {
-        return $this->hasManyThrough(Project::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
+        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id');
     }
 
-    public function todos(): HasManyThrough
-    {
-        return $this->hasManyThrough(Todo::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
-    }
+//    public function todos(): HasManyThrough
+//    {
+//        return $this->hasManyThrough(Todo::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
+//    }
 }

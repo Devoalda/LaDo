@@ -77,6 +77,7 @@ class ProjectTodoController extends Controller
 
         $user = User::find(auth()->user()->id);
         $project = $user->projects->find($project_id);
+        // Add the Todo to the Project
         $project->todos()->save($todo);
 
         return redirect()->route('project.todo.index', $project_id)
@@ -140,8 +141,7 @@ class ProjectTodoController extends Controller
 
         $todo->update($data);
 
-        return redirect()->route('project.todo.index', $project_id)
-            ->with('success', 'Todo updated successfully');
+        return back()->with('success', 'Todo updated successfully');
     }
 
     /**

@@ -9,6 +9,18 @@
         </h2>
     </x-slot>
 
+    <!-- Success/Error Message in green/red session('success') or session('error') -->
+    @if(session('success'))
+    <div class="bg-green-500 text-white p-4 rounded-lg mb-6 text-center">
+        {{ session('success') }}
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="bg-red-500 text-white p-4 rounded-lg mb-6 text-center">
+        {{ session('error') }}
+    </div>
+    @endif
 
     <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -83,12 +95,12 @@
         <div class="space-y-4">
             @foreach ($todos as $todo)
             @if (!$todo->completed_at)
-            <a href="{{ route('project.todo.edit', [$project->id, $todo->id]) }}" class="block">:
+            <a href="{{ route('project.todo.edit', [$todo->project->id, $todo->id]) }}" class="block">
                 <div
                     class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 flex items-center justify-between">
                     <div class="flex items-center">
                         <!-- Checkbox to toggle completed at -->
-                        <form action="{{ route('project.todo.update', [$project->id, $todo->id]) }}"
+                        <form action="{{ route('project.todo.update', [$todo->project->id, $todo->id]) }}"
                               method="POST"
                               class="toggle-completed-form">
                             @csrf

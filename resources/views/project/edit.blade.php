@@ -5,6 +5,19 @@
         </h2>
     </x-slot>
 
+    <!-- Success/Error Message in green/red session('success') or session('error') -->
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded-lg mb-6 text-center">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded-lg mb-6 text-center">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="py-4">
         <form method="POST" action="{{ route('project.todo.update', [$project, $todo]) }}"
               id="todo-form">

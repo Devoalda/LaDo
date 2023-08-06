@@ -37,12 +37,20 @@ class ProjectController extends Controller
     }
 
     /**
-     * TODO: Complete this method
      * Store a newly created project in storage.
      */
     public function store(Request $request)
     {
-        //
+        $user = User::find(auth()->user()->id);
+
+        $data = $request->validate([
+            'name' => 'required|unique:projects|max:255',
+            'description' => 'nullable|max:255',
+        ]);
+
+        $user->projects()->save(new Project($data));
+
+        return redirect()->route('project.index');
     }
 
     /**
@@ -51,7 +59,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        return redirect()->route('project.index');
     }
 
     /**
@@ -68,7 +76,18 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        //
+        $user = User::find(auth()->user()->id);
+        $projects = $user->projects;
+        $project = $projects->find($project->id);
+
+        $data = $request->validate([
+            'name' => 'required|unique:projects|max:255',
+            'description' => 'nullable|max:255',
+        ]);
+
+        $project->update($data);
+
+        return back()->with('status', 'Project updated!');
     }
 
     /**

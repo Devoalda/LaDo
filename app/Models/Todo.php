@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
@@ -39,7 +40,7 @@ class Todo extends Model
 
     public function project(): HasOneThrough
     {
-        return $this->hasOneThrough(Project::class, ProjectTodo::class, 'todo_id', 'id', 'id', 'project_id');
+        return $this->hasOneThrough(Project::class, projectTodo::class, 'todo_id', 'id', 'id', 'project_id');
     }
 
 }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class Project extends Model
 {
@@ -25,13 +26,13 @@ class Project extends Model
      * Relationship with Todo model (one to many)
      * @return BelongsToMany
      */
-    public function todos(): HasManyThrough
+    public function todos(): BelongsToMany
     {
-        return $this->hasManyThrough(Todo::class, projectTodo::class, 'project_id', 'id', 'id', 'todo_id');
+        return $this->belongsToMany(Todo::class, 'project_todo', 'project_id', 'todo_id');
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(projectUser::class, 'project_user', 'project_id', 'user_id');
+        return $this->belongsTo(User::class);
     }
 }
