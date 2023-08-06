@@ -21,7 +21,8 @@ Route::get('/', function () {
 
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Show dashboard after login, get user data from TodoController
 //Route::get('/dashboard', [TodoController::class, 'index'])
@@ -30,7 +31,11 @@ Route::get('/dashboard', function () {
 
 // todo resource route
 Route::resource('todo', TodoController::class)
-    ->middleware(['auth', 'verified']);
+    ->middleware([
+        'auth',
+        'verified',
+        'web'
+    ]);
 
 
 Route::middleware('auth')->group(function () {

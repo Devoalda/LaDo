@@ -41,7 +41,7 @@
                                 <label for="due_start" class="block mb-2 font-semibold">Due Start</label>
                                 <input type="datetime-local" name="due_start" id="due_start" placeholder="Due Start"
                                        class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('due_start') border-red-500 @enderror"
-                                       value="{{ old('due_start', $todo->due_start) }}">
+                                       value="{{ old('due_start', date('Y-m-d\TH:i', $todo->due_start)) }}">
                                 @error('due_start')
                                 <div class="text-red-500 mt-2 text-sm">
                                     {{ $message }}
@@ -52,7 +52,7 @@
                                 <label for="due_end" class="block mb-2 font-semibold">Due End</label>
                                 <input type="datetime-local" name="due_end" id="due_end" placeholder="Due End"
                                        class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('due_end') border-red-500 @enderror"
-                                       value="{{ old('due_end', $todo->due_end) }}">
+                                       value="{{ old('due_end', date('Y-m-d\TH:i', $todo->due_end)) }}">
                                 @error('due_end')
                                 <div class="text-red-900 mt-2 text-sm">
                                     {{ $message }}

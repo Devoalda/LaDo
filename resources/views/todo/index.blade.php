@@ -76,18 +76,18 @@
                                     @if ($due_start || $due_end)
                                     @if ($due_start && $due_end)
                                     @if ($due_start == $due_end)
-                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i:s')
+                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i')
                                         }}</p>
                                     @else
-                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i:s') }} -
-                                        {{ $due_end->format('Y-m-d H:i:s') }}</p>
+                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i') }} -
+                                        {{ $due_end->format('Y-m-d H:i') }}</p>
                                     @endif
                                     @else
                                     @if ($due_start)
-                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i:s')
+                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_start->format('Y-m-d H:i')
                                         }}</p>
                                     @elseif ($due_end)
-                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_end->format('Y-m-d H:i:s') }}</p>
+                                    <p class="text-sm text-gray-500 mb-2">Due: {{ $due_end->format('Y-m-d H:i') }}</p>
                                     @endif
                                     @endif
 
