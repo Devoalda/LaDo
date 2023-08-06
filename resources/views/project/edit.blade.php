@@ -6,7 +6,8 @@
     </x-slot>
 
     <div class="py-4">
-        <form method="POST" action="{{ route('todo.update', $todo) }}" id="todo-form">
+        <form method="POST" action="{{ route('project.todo.update', [$project, $todo]) }}"
+              id="todo-form">
             @csrf
             @method('PUT')
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -63,7 +64,7 @@
 
                         <div class="flex justify-end mt-4 space-x-4">
                             <!-- Cancel Button (GET request to index route) -->
-                            <a href="{{ route('todo.index') }}"
+                            <a href="{{ route('project.todo.index', $project) }}"
                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 bg-transparent border border-gray-900 rounded-l-lg hover:bg-gray-900 hover:text-white focus:z-10 focus:ring-2 focus:ring-gray-500 focus:bg-gray-900 focus:text-white dark:border-white dark:text-white dark:hover:text-white dark:hover:bg-gray-700 dark:focus:bg-gray-700">
                                 <svg class="w-5 h-5 mr-2" aria-hidden="true" fill="none" viewBox="0 0 24 24"
                                      stroke="currentColor">
@@ -96,20 +97,16 @@
                                 Update
                             </button>
                         </div>
+        </form>
 
-
-                    </div>
-                </div>
-            </div>
     </div>
-    </form>
 
     <!-- Hidden Delete Form -->
-    <form id="delete-form" action="{{ route('todo.destroy', $todo) }}" method="POST">
+    <form id="delete-form" action="{{ route('project.todo.destroy', [$project, $todo]) }}" method="POST"
+          class="hidden">
         @csrf
         @method('DELETE')
     </form>
-    </div>
 
     <script>
         function confirmDelete() {

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Project extends Model
 {
@@ -21,12 +22,12 @@ class Project extends Model
     ];
 
     /**
-     * Relationship with Todo model
+     * Relationship with Todo model (one to many)
      * @return BelongsToMany
      */
-    public function todos(): belongsToMany
+    public function todos(): HasManyThrough
     {
-        return $this->belongsToMany(Todo::class);
+        return $this->hasManyThrough(Todo::class, projectTodo::class, 'project_id', 'id', 'id', 'todo_id');
     }
 
     public function user(): BelongsTo

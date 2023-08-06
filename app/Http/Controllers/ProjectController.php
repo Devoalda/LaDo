@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Models\User;
+
 
 class ProjectController extends Controller
 {
@@ -12,8 +14,17 @@ class ProjectController extends Controller
      */
     public function index()
     {
+        $user = User::find(auth()->user()->id);
+        $projects = $user->projects;
+        // Aggregate all todos for all projects
+        $todos = $projects->map(function ($project) {
+            return $project->todos;
+        })->flatten();
+
         return view('project.index', [
-            'projects' => Project::where('user_id', auth()->user()->id)->get()
+            'projects' => $projects,
+            'todos' => $todos->whereNull('completed_at')->values(),
+            'completed' => $todos->whereNotNull('completed_at')->values(),
         ]);
     }
 
@@ -22,11 +33,12 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return view('project.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * TODO: Complete this method
+     * Store a newly created project in storage.
      */
     public function store(Request $request)
     {
@@ -34,6 +46,7 @@ class ProjectController extends Controller
     }
 
     /**
+     * TODO: Complete this method (if needed)
      * Display the specified resource.
      */
     public function show(Project $project)
@@ -42,7 +55,8 @@ class ProjectController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * TODO: Complete this method (if needed)
+     * Show the form for editing the specified Project.
      */
     public function edit(Project $project)
     {
@@ -50,7 +64,7 @@ class ProjectController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified Project in storage.
      */
     public function update(Request $request, Project $project)
     {
@@ -58,10 +72,16 @@ class ProjectController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified Project from storage.
      */
     public function destroy(Project $project)
     {
-        //
+        $user = User::find(auth()->user()->id);
+        $projects = $user->projects;
+        $project = $projects->find($project->id);
+
+        $project->delete();
+
+        return redirect()->route('project.index');
     }
 }

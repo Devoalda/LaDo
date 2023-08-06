@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTodoRequest;
-use App\Http\Requests\UpdateTodoRequest;
+//use App\Http\Requests\StoreTodoRequest;
+//use App\Http\Requests\UpdateTodoRequest;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -13,30 +13,24 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Carbon;
 
-class TodoController extends Controller
+class ProjectTodoController extends Controller
 {
-    private string $timezone = "Asia/Singapore";
-
+    private string $timezone = 'Asia/Singapore';
     /**
-     * Display a listing of the resource.
+     * Display a listing of all Todos for a Project.
      */
-    public function index(): View|Application
+    public function index($project_id)
     {
         $user = User::find(auth()->user()->id);
-
         $projects = $user->projects;
+        $project = $projects->find($project_id);
 
-        $todos = collect();
+        $todos = $project->todos;
 
-        foreach ($projects as $project) {
-            $todos = $todos->merge($project->todos);
-        }
-
-
-        return view('todo.index', [
+        return view('project.todo', [
             'todos' => $todos->whereNull('completed_at')->values(),
             'completed' => $todos->whereNotNull('completed_at')->values(),
-            'projects' => $projects,
+            'project' => $project,
         ]);
     }
 
@@ -45,15 +39,15 @@ class TodoController extends Controller
      */
     public function create(): Factory|View|Application
     {
-        return view('todo.create');
+        return view('project.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created Todo in storage.
      */
-    public function store(StoreTodoRequest $request): RedirectResponse
+    public function store($project_id, Request $request)
     {
-        $validatedData = $request->validate([
+        $validatedData = Request::validate([
             'title' => 'required|max:255',
             'description' => 'nullable|max:255',
             'due_start' => 'nullable|date',
@@ -82,61 +76,48 @@ class TodoController extends Controller
         $todo = new Todo($validatedData);
 
         $user = User::find(auth()->user()->id);
-        $project = $user->projects->first();
+        $project = $user->projects->find($project_id);
         $project->todos()->save($todo);
 
-        // Set flash message
-        session()->flash('success', 'Todo created successfully.');
-
-        return redirect()->route('todo.index');
+        return redirect()->route('project.todo.index', $project_id)
+            ->with('success', 'Todo created successfully.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Todo $todo): Factory|View|Application
+    public function show($project_id, Todo $todo)
     {
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
-        $todo = $projects->first()
-            ->todos
-            ->where('id', $todo->id)
-            ->first();
+        $project = $projects->find($project_id);
 
-        return view('todo.show', compact('todo'));
+        return view('project.todo.show', compact('project', 'todo'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Todo $todo): Factory|View|Application
+    public function edit($project_id, Todo $todo)
     {
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
-        $todo = $projects->first()
-            ->todos
-            ->where('id', $todo->id)
-            ->first();
+        $project = $projects->find($project_id);
 
-        return view('todo.edit', compact('todo'));
+        return view('project.edit', compact('project', 'todo'));
     }
 
     /**
      * Update the specified resource in storage.
-     * Can either update completed_at (Checkbox) or other fields
-     *
-     * @param UpdateTodoRequest $request UpdateTodoRequest
-     * @param Todo $todo Todo Object
-     * @return RedirectResponse Redirect to todo.index
      */
-    public function update(UpdateTodoRequest $request, Todo $todo): RedirectResponse
+    public function update($project_id, Request $request, Todo $todo)
     {
-        $data = $request->only(['title', 'description', 'due_start', 'due_end', 'completed_at']);
+        $data = Request::only(['title', 'description', 'due_start', 'due_end', 'completed_at']);
 
         if (Request::filled('completed_at')) {
             $todo->completed_at = Request::input('completed_at') === 'on' ? strtotime(now($this->timezone)) : null;
             $todo->save();
-            return redirect()->route('todo.index')->with('success', 'Good job! Todo completed.');
+            return back()->with('success', 'Todo updated successfully');
         } else {
             // If 'completed_at' is not provided, toggle its value (only if the request is empty)
             if (empty($data))
@@ -159,23 +140,18 @@ class TodoController extends Controller
 
         $todo->update($data);
 
-        return redirect()->route('todo.index')->with('success', 'Todo updated successfully.');
+        return redirect()->route('project.todo.index', $project_id)
+            ->with('success', 'Todo updated successfully');
     }
-
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Todo $todo): RedirectResponse
+    public function destroy($project_id, Todo $todo)
     {
-        $todo = Todo::where('user_id', auth()->user()->id)
-            ->where('id', $todo->id)
-            ->firstOrFail();
         $todo->delete();
 
-        // Set flash message
-        session()->flash('success', 'Todo deleted successfully.');
-
-        return redirect()->route('todo.index');
+        return redirect()->route('project.todo.index', $project_id)
+            ->with('success', 'Todo deleted successfully');
     }
 }

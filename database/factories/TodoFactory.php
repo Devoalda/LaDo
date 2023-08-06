@@ -21,11 +21,9 @@ class TodoFactory extends Factory
             'description' => fake()->paragraph(),
             'due_start' => fake()->unixTime(),
             'due_end' => fake()->unixTime(),
-            'user_id' => fake()->uuid(),
-            'completed_at' => null,
+            'completed_at' => fake()->optional()->unixTime(),
             'created_at' => fake()->unixTime(),
             'updated_at' => fake()->unixTime(),
-
         ];
     }
 }

@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectTodoController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TodoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,7 @@ use App\Http\Controllers\TodoController;
 */
 
 Route::get('/', function () {
-    return redirect(route('todo.index'));
+    return redirect(route('project.index'));
 });
 
 Route::get('/dashboard', function () {
@@ -24,19 +25,19 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// Show dashboard after login, get user data from TodoController
-//Route::get('/dashboard', [TodoController::class, 'index'])
-//    ->middleware(['auth', 'verified'])
-//    ->name('dashboard');
-
-// todo resource route
-Route::resource('todo', TodoController::class)
+Route::resource('project.todo', ProjectTodoController::class)
     ->middleware([
         'auth',
         'verified',
         'web'
     ]);
 
+Route::resource('project', ProjectController::class)
+    ->middleware([
+        'auth',
+        'verified',
+        'web'
+    ]);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

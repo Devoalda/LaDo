@@ -19,8 +19,8 @@
 
                 <!-- Todo List -->
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('todo.index')" :active="request()->routeIs('todo.index')">
-                        {{ __('Todo List') }}
+                    <x-nav-link :href="route('project.index')" :active="request()->routeIs('project.index')">
+                        {{ __('Projects') }}
                     </x-nav-link>
                 </div>
             </div>
@@ -45,8 +45,8 @@
                             {{ __('Profile') }}
                         </x-dropdown-link>
 
-                        <x-dropdown-link :href="route('todo.index')">
-                            {{ __('Todo List') }}
+                        <x-dropdown-link :href="route('project.index')">
+                            {{ __('Projects') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -82,8 +82,8 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            <x-responsive-nav-link :href="route('todo.index')" :active="request()->routeIs('todo.index')">
-                {{ __('Todo List') }}
+            <x-responsive-nav-link :href="route('project.index')" :active="request()->routeIs('project.index')">
+                {{ __('Projects') }}
             </x-responsive-nav-link>
         </div>
 
