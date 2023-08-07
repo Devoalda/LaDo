@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class Todo extends Model
 {
@@ -34,9 +36,17 @@ class Todo extends Model
         "updated_at" => "integer",
     ];
 
-    public function user(): BelongsTo
+    public function user(): Collection
     {
-        return $this->belongsTo(User::class);
+        // Select User given Todo
+        return DB::table('users')
+            ->join('project_user', 'users.id', '=', 'project_user.user_id')
+            ->join('projects', 'project_user.project_id', '=', 'projects.id')
+            ->join('project_todo', 'projects.id', '=', 'project_todo.project_id')
+            ->join('todos', 'project_todo.todo_id', '=', 'todos.id')
+            ->where('todos.id', '=', $this->id)
+            ->select('users.*')
+            ->get();
     }
 
     public function project(): HasOneThrough

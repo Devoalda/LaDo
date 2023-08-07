@@ -62,6 +62,16 @@
                             </div>
                         </div>
 
+                        <!-- Completed at checkbox -->
+                        <div class="mt-4">
+                            <label for="completed_at" class="inline-flex items-center">
+                                <input type="checkbox" name="completed_at" id="completed_at"
+                                       class="form-checkbox bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-5 h-5"
+                                        {{ old('completed_at', $todo->completed_at) ? 'checked' : '' }}>
+                                <span class="ml-2 text-gray-700 dark:text-gray-400">Completed</span>
+                            </label>
+                        </div>
+
                         <div class="flex justify-end mt-4 space-x-4">
                             <!-- Cancel Button (GET request to index route) -->
                             <a href="{{ route('project.todo.index', $project) }}"

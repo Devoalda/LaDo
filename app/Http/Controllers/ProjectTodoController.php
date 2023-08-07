@@ -28,6 +28,9 @@ class ProjectTodoController extends Controller
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
+        if (!$project || $project->user->id !== auth()->user()->id)
+            return back()->with('error', 'Project not found');
+
         $todos = $project->todos;
 
         return view('todo.index', [
@@ -40,9 +43,12 @@ class ProjectTodoController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): Factory|View|Application
+    public function create($project_id): Factory|View|Application
     {
-        return view('todo.create');
+        $project = auth()->user()->projects->find($project_id);
+        return view('todo.create', [
+            'project' => $project,
+        ]);
     }
 
     /**
@@ -90,6 +96,9 @@ class ProjectTodoController extends Controller
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
+        if (!$project || $project->user->id !== auth()->user()->id || $todo->user()[0]->id !== auth()->user()->id)
+            return back()->with('error', 'Project/Todo not found');
+
         return view('todo.show', compact('project', 'todo'));
     }
 
@@ -101,6 +110,9 @@ class ProjectTodoController extends Controller
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
         $project = $projects->find($project_id);
+
+        if (!$project || $project->user->id !== auth()->user()->id || $todo->user()[0]->id !== auth()->user()->id)
+            return back()->with('error', 'Project/Todo not found');
 
         // Check if the given todo is in the given project (Reverse find with todo's project_id)
         if ($todo->project->id !== $project_id)

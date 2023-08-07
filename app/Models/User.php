@@ -16,7 +16,6 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, UuidTrait;
 
-    protected $dateFormat = 'U';
     protected $table = 'users';
 
     /**
@@ -50,13 +49,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function projects(): BelongsToMany
+    public function projects(): HasManyThrough
     {
-        return $this->belongsToMany(Project::class, 'project_user', 'user_id', 'project_id');
+        return $this->hasManyThrough(Project::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
     }
 
-//    public function todos(): HasManyThrough
-//    {
-//        return $this->hasManyThrough(Todo::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
-//    }
+    public function todos(): HasManyThrough
+    {
+        return $this->hasManyThrough(Todo::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
+    }
 }

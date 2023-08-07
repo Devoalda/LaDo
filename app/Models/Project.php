@@ -32,8 +32,15 @@ class Project extends Model
         return $this->belongsToMany(Todo::class, 'project_todo', 'project_id', 'todo_id');
     }
 
-    public function user(): BelongsTo
+    public function user(): HasOneThrough
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOneThrough(
+            User::class,
+            projectUser::class,
+            'project_id',
+            'id',
+            'id',
+            'user_id'
+        );
     }
 }

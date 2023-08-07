@@ -12,8 +12,13 @@ class ExampleTest extends TestCase
      */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
-
+        // Gets redirected to login page if not logged in
+        // Gets redirected to project page if logged in
+        if (auth()->check()) {
+            $response = $this->get(route('project.index'));
+        } else {
+            $response = $this->get(route('login'));
+        }
         $response->assertStatus(200);
     }
 }
