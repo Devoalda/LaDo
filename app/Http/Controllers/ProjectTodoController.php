@@ -28,8 +28,7 @@ class ProjectTodoController extends Controller
 
         if (!$project || $project->user->id !== auth()->user()->id)
             return back()
-                ->with('error', 'Project not found')
-                ->setStatusCode(404);
+                ->with('error', 'Project not found');
 
         $todos = $project->todos;
 
