@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -13,9 +16,9 @@ use App\Models\User;
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display Listing of all Projects.
      */
-    public function index()
+    public function index(): Application|Factory|View
     {
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
@@ -34,7 +37,7 @@ class ProjectController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View|\Illuminate\Foundation\Application|Factory|Application
     {
         return view('project.create');
     }
@@ -58,7 +61,7 @@ class ProjectController extends Controller
      * TODO: Complete this method (if needed)
      * Display the specified resource.
      */
-    public function show(Project $project)
+    public function show(Project $project): RedirectResponse
     {
         return redirect()->route('project.index');
     }

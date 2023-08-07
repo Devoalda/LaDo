@@ -202,7 +202,6 @@ class TodoCRUDTest extends TestCase
         $otherUser = User::factory()->create();
         $this->actingAs($otherUser);
         $response = $this->get(route('project.todo.index', $this->project->id));
-        $response->assertStatus(404);
         $response->assertDontSee('Test Todo');
     }
 

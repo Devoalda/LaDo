@@ -74,8 +74,8 @@ class ProjectTodoController extends Controller
         $project->todos()->save($todo);
 
         return redirect()->route('project.todo.index', $project_id)
-            ->with('success', 'Todo created successfully.')
-            ->setStatusCode(201);
+            ->with('success', 'Todo created successfully.');
+//            ->setStatusCode(201);
     }
 
     /**
