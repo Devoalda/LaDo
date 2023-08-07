@@ -26,7 +26,7 @@ class StoreTodoRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
             'due_start' => 'nullable|date',
-            'due_end' => 'nullable|date',
+            'due_end' => 'nullable|date|after_or_equal:due_start',
         ];
     }
 }

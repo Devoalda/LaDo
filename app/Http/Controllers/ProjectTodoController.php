@@ -20,14 +20,16 @@ class ProjectTodoController extends Controller
     /**
      * Display a listing of all Todos for a Project.
      */
-    public function index($project_id)
+    public function index($project_id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|RedirectResponse
     {
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
         if (!$project || $project->user->id !== auth()->user()->id)
-            return back()->with('error', 'Project not found');
+            return back()
+                ->with('error', 'Project not found')
+                ->setStatusCode(404);
 
         $todos = $project->todos;
 
@@ -56,24 +58,14 @@ class ProjectTodoController extends Controller
     {
         $validatedData = $request->validated();
 
-        $due_end = match (true) {
-            isset($validatedData['due_end']) => strtotime($validatedData['due_end']),
-            isset($validatedData['due_start']) => strtotime($validatedData['due_start']),
-            default => null,
-        };
-
-        $validatedData = array_merge($validatedData, [
-            // due_end = due_start if due_end is not provided and due_start is provided or null
-            'due_end' => $due_end,
-            'user_id' => auth()->user()->id,
-        ]);
-
-        // Modify all dates to unix timestamp
-        if (isset($validatedData['due_start']))
+        if(isset($validatedData['due_start']))
             $validatedData['due_start'] = strtotime($validatedData['due_start']);
+
         if (isset($validatedData['due_end']))
             $validatedData['due_end'] = strtotime($validatedData['due_end']);
-
+        elseif (isset($validatedData['due_start']))
+            $validatedData['due_end'] = $validatedData['due_start'];
+//
         $todo = new Todo($validatedData);
 
         $user = User::find(auth()->user()->id);
@@ -82,7 +74,8 @@ class ProjectTodoController extends Controller
         $project->todos()->save($todo);
 
         return redirect()->route('project.todo.index', $project_id)
-            ->with('success', 'Todo created successfully.');
+            ->with('success', 'Todo created successfully.')
+            ->setStatusCode(201);
     }
 
     /**
@@ -156,7 +149,8 @@ class ProjectTodoController extends Controller
 
         $todo->update($data);
 
-        return back()->with('success', 'Todo updated successfully');
+        return back()
+            ->with('success', 'Todo updated successfully');
     }
 
     /**

@@ -127,4 +127,21 @@ class ProjectCRUDTest extends TestCase
         $response->assertNotFound();
     }
 
+    public function test_other_user_cannot_see_user_projects(): void
+    {
+        $this->test_user_can_create_project();
+        // Test if the current user can see the project
+        $this->actingAs($this->user);
+        $response = $this->get(route('project.index'));
+        $response->assertSee('Test Project');
+        $response->assertSee('Test Description');
+
+        // Test if another user can see the project
+        $this->actingAs(User::factory()->create());
+        $response = $this->get(route('project.index'));
+        $response->assertDontSee('Test Project');
+        $response->assertDontSee('Test Description');
+
+    }
+
 }
