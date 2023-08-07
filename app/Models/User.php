@@ -49,13 +49,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function projects(): HasManyThrough
+    public function projects(): BelongsToMany
     {
-        return $this->hasManyThrough(Project::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
+        return $this->belongsToMany(Project::class, projectUser::class, 'user_id', 'project_id');
     }
 
     public function todos(): HasManyThrough
     {
-        return $this->hasManyThrough(Todo::class, projectUser::class, 'user_id', 'id', 'id', 'project_id');
+        return $this->hasManyThrough(Todo::class, Project::class, 'owner_id', 'project_id');
     }
 }
