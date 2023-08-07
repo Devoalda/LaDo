@@ -48,7 +48,7 @@ class ProjectController extends Controller
 
         $data = $request->validated();
 
-        $user->projects()->save(new Project($data));
+        $user->projects()->create($data);
 
         return redirect()->route('project.index')
             ->with('info', 'Project created!');

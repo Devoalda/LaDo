@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-//use App\Http\Requests\StoreTodoRequest;
-//use App\Http\Requests\UpdateTodoRequest;
 use App\Http\Requests\Project\StoreTodoRequest;
 use App\Http\Requests\Project\UpdateTodoRequest;
 use App\Models\Todo;
