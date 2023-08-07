@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -39,18 +42,16 @@ class ProjectController extends Controller
     /**
      * Store a newly created project in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request): RedirectResponse
     {
         $user = User::find(auth()->user()->id);
 
-        $data = $request->validate([
-            'name' => 'required|unique:projects|max:255',
-            'description' => 'nullable|max:255',
-        ]);
+        $data = $request->validated();
 
         $user->projects()->save(new Project($data));
 
-        return redirect()->route('project.index');
+        return redirect()->route('project.index')
+            ->with('info', 'Project created!');
     }
 
     /**
@@ -68,26 +69,25 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return view('project.edit', [
+            'project' => $project,
+        ]);
     }
 
     /**
      * Update the specified Project in storage.
      */
-    public function update(Request $request, Project $project)
+    public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
         $user = User::find(auth()->user()->id);
         $projects = $user->projects;
         $project = $projects->find($project->id);
 
-        $data = $request->validate([
-            'name' => 'required|unique:projects|max:255',
-            'description' => 'nullable|max:255',
-        ]);
+        $data = $request->validated();
 
         $project->update($data);
 
-        return back()->with('status', 'Project updated!');
+        return back()->with('info', 'Project updated!');
     }
 
     /**

@@ -15,6 +15,7 @@ class Todo extends Model
     use HasFactory, UuidTrait;
 
     protected $dateFormat = 'U';
+    protected $table = 'todos';
 
     protected $fillable = [
         'title',

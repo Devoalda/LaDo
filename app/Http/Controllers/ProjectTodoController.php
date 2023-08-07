@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 //use App\Http\Requests\StoreTodoRequest;
 //use App\Http\Requests\UpdateTodoRequest;
+use App\Http\Requests\Project\StoreTodoRequest;
+use App\Http\Requests\Project\UpdateTodoRequest;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -16,6 +18,7 @@ use Illuminate\Support\Carbon;
 class ProjectTodoController extends Controller
 {
     private string $timezone = 'Asia/Singapore';
+
     /**
      * Display a listing of all Todos for a Project.
      */
@@ -27,7 +30,7 @@ class ProjectTodoController extends Controller
 
         $todos = $project->todos;
 
-        return view('project.todo', [
+        return view('todo.index', [
             'todos' => $todos->whereNull('completed_at')->values(),
             'completed' => $todos->whereNotNull('completed_at')->values(),
             'project' => $project,
@@ -39,21 +42,15 @@ class ProjectTodoController extends Controller
      */
     public function create(): Factory|View|Application
     {
-        return view('project.create');
+        return view('todo.create');
     }
 
     /**
      * Store a newly created Todo in storage.
      */
-    public function store($project_id, Request $request)
+    public function store($project_id, StoreTodoRequest $request): RedirectResponse
     {
-        $validatedData = Request::validate([
-            'title' => 'required|max:255',
-            'description' => 'nullable|max:255',
-            'due_start' => 'nullable|date',
-            // due_end is not required, but if it is provided, it must be after due_start
-            'due_end' => 'nullable|after:due_start',
-        ]);
+        $validatedData = $request->validated();
 
         $due_end = match (true) {
             isset($validatedData['due_end']) => strtotime($validatedData['due_end']),
@@ -93,7 +90,7 @@ class ProjectTodoController extends Controller
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
-        return view('project.todo.show', compact('project', 'todo'));
+        return view('todo.show', compact('project', 'todo'));
     }
 
     /**
@@ -105,14 +102,22 @@ class ProjectTodoController extends Controller
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
-        return view('project.edit', compact('project', 'todo'));
+        // Check if the given todo is in the given project (Reverse find with todo's project_id)
+        if ($todo->project->id !== $project_id)
+            return back()->with('error', 'Todo not found in the given project');
+
+        return view('todo.edit', compact('project', 'todo'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update Todo in storage based on the given project
      */
     public function update($project_id, Request $request, Todo $todo)
     {
+        if ($todo->project->id !== $project_id) {
+            return back()->with('error', 'Todo not found in the given project');
+        }
+
         $data = Request::only(['title', 'description', 'due_start', 'due_end', 'completed_at']);
 
         if (Request::filled('completed_at')) {
@@ -147,7 +152,7 @@ class ProjectTodoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($project_id, Todo $todo)
+    public function destroy($project_id, Todo $todo): RedirectResponse
     {
         $todo->delete();
 

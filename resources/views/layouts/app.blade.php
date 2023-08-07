@@ -27,6 +27,9 @@
                 </header>
             @endif
 
+            <!-- Flash Messages -->
+            @include('flashView.flashmessages')
+
             <!-- Page Content -->
             <main>
                 {{ $slot }}

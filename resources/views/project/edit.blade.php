@@ -1,26 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Edit Todo') }}
+            {{ __('Edit Project') }}
         </h2>
     </x-slot>
 
-    <!-- Success/Error Message in green/red session('success') or session('error') -->
-    @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded-lg mb-6 text-center">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="bg-red-500 text-white p-4 rounded-lg mb-6 text-center">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="py-4">
-        <form method="POST" action="{{ route('project.todo.update', [$project, $todo]) }}"
-              id="todo-form">
+        <form method="POST" action="{{ route('project.update', $project) }}" id="project-form">
             @csrf
             @method('PUT')
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -28,10 +14,10 @@
                     <div class="text-gray-800 dark:text-gray-100">
 
                         <div class="mb-4">
-                            <label for="title" class="block mb-2 font-semibold">Title</label>
-                            <input type="text" name="title" id="title" placeholder="Title"
+                            <label for="name" class="block mb-2 font-semibold">Name</label>
+                            <input type="text" name="name" id="name" placeholder="Name"
                                    class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('title') border-red-500 @enderror"
-                                   value="{{ old('title', $todo->title) }}">
+                                   value="{{ old('name', $project->name) }}">
                             @error('title')
                             <div class="text-red-500 mt-2 text-sm">
                                 {{ $message }}
@@ -42,7 +28,7 @@
                         <div class="mb-4">
                             <label for="description" class="block mb-2 font-semibold">Description</label>
                             <textarea name="description" id="description" placeholder="Description"
-                                      class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('description') border-red-500 @enderror">{{ old('description', $todo->description) }}</textarea>
+                                      class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('description') border-red-500 @enderror">{{ old('description', $project->description) }}</textarea>
                             @error('description')
                             <div class="text-red-500 mt-2 text-sm">
                                 {{ $message }}
@@ -50,29 +36,6 @@
                             @enderror
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="due_start" class="block mb-2 font-semibold">Due Start</label>
-                                <input type="datetime-local" name="due_start" id="due_start" placeholder="Due Start"
-                                       class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('due_start') border-red-500 @enderror"
-                                       value="{{ old('due_start', $todo->due_start ? date('Y-m-d\TH:i', $todo->due_start) : '') }}">
-                                @error('due_start')
-                                <div class="text-red-500 mt-2 text-sm">
-                                    {{ $message }}
-                                </div>
-                                @enderror
-                            </div>
-                            <div>
-                                <label for="due_end" class="block mb-2 font-semibold">Due End</label>
-                                <input type="datetime-local" name="due_end" id="due_end" placeholder="Due End"
-                                       class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('due_end') border-red-500 @enderror"
-                                       value="{{ old('due_end', $todo->due_end ? date('Y-m-d\TH:i', $todo->due_end) : '') }}">
-                                @error('due_end')
-                                <div class="text-red-900 mt-2 text-sm">
-                                    {{ $message }}
-                                </div>
-                                @enderror
-                            </div>
                         </div>
 
                         <div class="flex justify-end mt-4 space-x-4">
@@ -115,7 +78,7 @@
     </div>
 
     <!-- Hidden Delete Form -->
-    <form id="delete-form" action="{{ route('project.todo.destroy', [$project, $todo]) }}" method="POST"
+    <form id="delete-form" action="{{ route('project.destroy', $project) }}" method="POST"
           class="hidden">
         @csrf
         @method('DELETE')
@@ -123,7 +86,7 @@
 
     <script>
         function confirmDelete() {
-            if (confirm('Are you sure you want to delete this item?')) {
+            if (confirm('Are you sure you want to delete this Project?')) {
                 document.getElementById('delete-form').submit();
             }
         }

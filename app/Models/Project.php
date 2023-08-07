@@ -16,6 +16,7 @@ class Project extends Model
     use HasFactory, UuidTrait;
 
     protected $dateFormat = 'U';
+    protected $table = 'projects';
 
     protected $fillable = [
         'name',

@@ -2,23 +2,14 @@
 
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Todo List') }}
+            {{ __('Todo List for Project:') }} <span class="font-bold text-blue-500 dark:text-blue-400"
+            >{{ $project->name }}</span>
         </h2>
     </x-slot>
 
-    <!-- Flash data for success and error messages -->
-    @if(session()->has('success'))
-    <div class="bg-green-500 text-white p-4 rounded-lg mb-6 text-center">
-        {{ session('success') }}
-    </div>
-    @elseif(session()->has('error'))
-    <div class="bg-red-500 text-white p-4 rounded-lg mb-6 text-center">
-        {{ session('error') }}
-    </div>
-    @endif
-
-    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mb-3">
-        <form method="POST" action="{{ route('todo.store') }}" id="todo-form">
+    <!-- Same width and design as the bottom todo listing -->
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mt-4">
+        <form method="POST" action="{{ route('project.todo.store', $project->id) }}">
             @csrf
             <div class="text-gray-800 dark:text-gray-100">
                 <div class="mb-4 flex items-center">
@@ -30,7 +21,7 @@
                     <button type="submit"
                             class="ml-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                             onclick="event.preventDefault();
-                            document.getElementById('title').value.trim() === '' ? window.location.href = '{{ route('todo.create') }}' : document.getElementById('todo-form').submit();">
+                            document.getElementById('title').value.trim() === '' ? window.location.href = '{{ route('project.todo.create', $project->id) }}' : this.form.submit();">
                         <svg xmlns="http://www.w3.org/2000/svg"
                              fill="none"
                              viewBox="0 0 24 24"
@@ -51,27 +42,27 @@
     </div>
 
 
-    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mb-3">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mt-4">
         <h2 class="text-2xl font-semibold mb-4 text-red-500 dark:text-red-400">
             Not Completed ({{ $todos->count() }})
         </h2>
         <div class="space-y-4">
             @foreach ($todos as $todo)
             @if (!$todo->completed_at)
-            <a href="{{ route('todo.edit', $todo->id) }}" class="block">
+            <a href="{{ route('project.todo.edit', [$project->id, $todo->id]) }}" class="block">:
                 <div
                     class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 flex items-center justify-between">
                     <div class="flex items-center">
                         <!-- Checkbox to toggle completed at -->
-                        <form action="{{ route('todo.update', $todo->id) }}" method="POST"
+                        <form action="{{ route('project.todo.update', [$project->id, $todo->id]) }}"
+                              method="POST"
                               class="toggle-completed-form">
                             @csrf
                             @method('PUT')
                             <label class="flex items-center cursor-pointer">
                                 <input type="checkbox" name="completed_at"
                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-                                       onclick="this.form.submit()" {{ $todo->completed_at ? 'checked' : ''
-                                }}>
+                                       onclick="this.form.submit()" {{ $todo->completed_at ? 'checked' : '' }}>
                                 <span class="ml-2 text-sm text-gray-700"></span>
                             </label>
                         </form>
@@ -117,18 +108,20 @@
     </div>
 
 
-    <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mt-4">
         <h2 class="text-2xl font-semibold mb-4 text-green-500 dark:text-green-400">
             Completed Today
             ({{ $completed->count() }})
         </h2>
         <div class="space-y-4">
             @foreach ($completed as $todo)
-            <a href="{{ route('todo.edit', $todo->id) }}" class="block">
+            <a href="{{ route('project.todo.edit', [$project->id, $todo->id]) }}" class="block">
                 <div
                     class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 flex items-center justify-between">
                     <div class="flex items-center">
-                        <form action="{{ route('todo.update', $todo->id) }}" method="POST">
+                        <form action="{{ route('project.todo.update', [$project->id, $todo->id]) }}"
+                              method="POST"
+                              class="toggle-completed-form">
                             @csrf
                             @method('PUT')
                             <label class="flex items-center cursor-pointer">
