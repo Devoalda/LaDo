@@ -105,16 +105,16 @@
                 </p>
             </div>
 
-            <livewire:dashboard.pomo-count />
+            <livewire:dashboard.pomo-count/>
 
-            <livewire:dashboard.pomo-time />
+            <livewire:dashboard.pomo-time/>
         </div>
 
     </div>
 
 
     <!-- List out Todos and their details (time left/ago) + checkbox in form to toggle completed -->
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mt-4">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 mt-4 py-3">
         <h2 class="text-2xl font-semibold mb-4 text-green-500 dark:text-green-400">
             Today's Todos
             ({{ $incomplete_count }})
@@ -122,42 +122,41 @@
         <div class="space-y-4" id="todo-container">
             @include('dashboard.load-todo')
         </div>
-    </div>
-
-    <!-- Pagination with CSS -->
-    <div class="invisible">
-        {{ $todos->links() }}
+        <!-- Pagination with CSS -->
+        <div class="invisible">
+            {{ $todos->links() }}
+        </div>
     </div>
 
     <script>
         $(document).ready(function () {
-    let nextPageUrl = '{{ $todos->nextPageUrl() }}';
+            let nextPageUrl = '{{ $todos->nextPageUrl() }}';
 
-    $(window).scroll(function () {
-        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
-            if (nextPageUrl) {
-                loadMorePosts();
-            }
-        }
-    });
+            $(window).scroll(function () {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                    if (nextPageUrl) {
+                        loadMoreTodos();
+                    }
+                }
+            });
 
-    function loadMorePosts() {
-        $.ajax({
-            url: nextPageUrl,
-            type: 'get',
-            beforeSend: function () {
-                nextPageUrl = '';
-            },
-            success: function (data) {
-                nextPageUrl = data.nextPageUrl;
-                $('#todo-container').append(data.view);
-            },
-            error: function (xhr, status, error) {
-                console.error("Error loading more posts:", error);
+            function loadMoreTodos() {
+                $.ajax({
+                    url: nextPageUrl,
+                    type: 'get',
+                    beforeSend: function () {
+                        nextPageUrl = '';
+                    },
+                    success: function (data) {
+                        nextPageUrl = data.nextPageUrl;
+                        $('#todo-container').append(data.view);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error loading more posts:", error);
+                    }
+                });
             }
         });
-    }
-});
     </script>
 
 </x-app-layout>

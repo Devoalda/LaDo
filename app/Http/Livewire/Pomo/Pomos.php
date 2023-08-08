@@ -12,6 +12,14 @@ use App\Models\{
 
 class Pomos extends Component
 {
+    public $perPage = 10;
+
+    public function loadMore()
+    {
+        $this->perPage += 10;
+    }
+
+
     public function render()
     {
         $user = User::find(auth()->id());

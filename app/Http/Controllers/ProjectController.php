@@ -8,9 +8,12 @@ use App\Models\Project;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Response;
 
 
 class ProjectController extends Controller
@@ -18,14 +21,22 @@ class ProjectController extends Controller
     /**
      * Display Listing of all Projects.
      */
-    public function index(): Application|Factory|View
+    public function index(Request $request): Application|Factory|View|JsonResponse
     {
         $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
+        $projects = $user->projects()->paginate(4);
         // Aggregate all todos for all projects
         $todos = $projects->map(function ($project) {
             return $project->todos;
         })->flatten();
+
+        if ($request->ajax()){
+            $view = view('project.load-projects', compact('projects'))->render();
+            return Response::json([
+                'view' => $view,
+                'nextPageUrl' => $projects->nextPageUrl(),
+            ]);
+        }
 
         return view('project.index', [
             'projects' => $projects,

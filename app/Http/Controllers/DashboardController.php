@@ -44,7 +44,7 @@ class DashboardController extends Controller
 
         $todo_completed_count = $this->all_completed_todos()['completed_count'];
 
-        return view('dashboard', compact(
+        return view('dashboard.index', compact(
             'todos',
             'incomplete_count',
             'project_count',
