@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PomoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectTodoController;
@@ -24,6 +25,13 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::resource('pomo', PomoController::class)
+    ->middleware([
+        'auth',
+        'verified',
+        'web'
+    ]);
 
 Route::resource('project.todo', ProjectTodoController::class)
     ->middleware([

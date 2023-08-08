@@ -105,6 +105,9 @@
                 </p>
             </div>
 
+            <livewire:dashboard.pomo-count />
+
+            <livewire:dashboard.pomo-time />
         </div>
 
     </div>

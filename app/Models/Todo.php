@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -54,4 +55,9 @@ class Todo extends Model
         return $this->hasOneThrough(Project::class, projectTodo::class, 'todo_id', 'id', 'id', 'project_id');
     }
 
+
+    public function pomo(): HasMany
+    {
+        return $this->hasMany(Pomo::class);
+    }
 }

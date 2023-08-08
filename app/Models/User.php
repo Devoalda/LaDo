@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -54,8 +56,28 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, projectUser::class, 'user_id', 'project_id');
     }
 
-    public function todos(): HasManyThrough
+    public function todos(): Collection
     {
-        return $this->hasManyThrough(Todo::class, Project::class, 'owner_id', 'project_id');
+        return DB::table('todos')
+            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
+            ->join('projects', 'project_todo.project_id', '=', 'projects.id')
+            ->join('project_user', 'projects.id', '=', 'project_user.project_id')
+            ->join('users', 'project_user.user_id', '=', 'users.id')
+            ->where('users.id', '=', $this->id)
+            ->select('todos.*')
+            ->get();
+    }
+
+    public function pomos(): Collection
+    {
+        return DB::table('pomos')
+            ->join('todos', 'pomos.todo_id', '=', 'todos.id')
+            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
+            ->join('projects', 'project_todo.project_id', '=', 'projects.id')
+            ->join('project_user', 'projects.id', '=', 'project_user.project_id')
+            ->join('users', 'project_user.user_id', '=', 'users.id')
+            ->where('users.id', '=', $this->id)
+            ->select('pomos.*')
+            ->get();
     }
 }

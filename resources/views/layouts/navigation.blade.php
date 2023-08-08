@@ -23,6 +23,13 @@
                         {{ __('Projects') }}
                     </x-nav-link>
                 </div>
+
+                <!-- Pomodoro List -->
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('pomo.index')" :active="request()->routeIs('pomo.index')">
+                        {{ __('Pomodoro') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
@@ -84,6 +91,10 @@
 
             <x-responsive-nav-link :href="route('project.index')" :active="request()->routeIs('project.index')">
                 {{ __('Projects') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('pomo.index')" :active="request()->routeIs('pomo.index')">
+                {{ __('Pomodoro') }}
             </x-responsive-nav-link>
         </div>
 
