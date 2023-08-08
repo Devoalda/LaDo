@@ -4,19 +4,39 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $user = auth()->user();
+
         $data = $this->all_incomplete_todos();
 
-        $todos = $data['todos'];
-        $incomplete_count = $data['incomplete_count'];
-        // Convert all todo to Todo model
+        $todos = DB::table('todos')
+            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
+            ->join('project_user', 'project_todo.project_id', '=', 'project_user.project_id')
+            ->where('project_user.user_id', '=', $user->id)
+            ->whereDate('due_end', '<=', strtotime('today midnight'))
+            ->whereNull('completed_at')
+            ->orderBy('due_end', 'asc')
+            ->paginate(5);
+
         $todos->transform(function ($todo) {
             return \App\Models\Todo::find($todo->id);
         });
+
+        if ($request->ajax()){
+            $view = view('dashboard.load-todo', compact('todos'))->render();
+            return Response::json([
+                'view' => $view,
+                'nextPageUrl' => $todos->nextPageUrl(),
+            ]);
+        }
+
+        $incomplete_count = $data['incomplete_count'];
+        // Convert all todo to Todo model
 
         $projects = $this->projects();
         $project_count = $projects['project_count'];
