@@ -12,11 +12,13 @@
                         <div class="mb-4">
                             <label for="todo_id" class="block mb-2 font-semibold">Todo</label>
                             <select class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-full p-4 @error('todo_id') border-red-500 @enderror"
-                                    name="todo_id" id="todo_id">
+                                    name="todo_id" id="todo_id" {{ $editing ? 'disabled' : '' }}>
                                 <option selected value="{{ $editing ? $pomo->todo_id : old('todo_id') }}">{{ $editing ? $pomo->todo->title : 'Select a Todo' }}</option>
+                            @if(!$editing)
                                 @foreach($incomplete_todos as $todo)
                                 <option value="{{ $todo['id'] }}">{{ $todo['title'] }}</option>
                                 @endforeach
+                            @endif
                             </select>
                             @error('todo_id')
                             <div class="text-red-500 mt-2 text-sm">

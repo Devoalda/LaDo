@@ -8,10 +8,11 @@ use App\Models\{
     Project,
     Todo
 };
+use Carbon\Carbon;
 
 class PomoTime extends Component
 {
-    public int $ave_pomo_time = 0;
+    public $ave_pomo_time = 0;
 
     public function mount()
     {
@@ -34,6 +35,9 @@ class PomoTime extends Component
         }
 
         $this->ave_pomo_time = $total_time / $total_pomos;
+
+        // Time in Hours and Minutes (H hours m minutes)
+        $this->ave_pomo_time = Carbon::createFromTimestamp($this->ave_pomo_time)->format('H \h m \m');
 
     }
 

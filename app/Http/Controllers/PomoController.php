@@ -46,10 +46,10 @@ class PomoController extends Controller
 
         // Convert due_start and end to unix timestamp and save
         $pomo = new Pomo();
-        $pomo->todo_id = $request->todo_id;
-        $pomo->pomo_start = strtotime($request->pomo_start);
-        $pomo->pomo_end = strtotime($request->pomo_end);
-        $pomo->notes = $request->notes;
+        $pomo->todo_id = $request->safe()->todo_id;
+        $pomo->pomo_start = strtotime($request->safe()->pomo_start);
+        $pomo->pomo_end = strtotime($request->safe()->pomo_end);
+        $pomo->notes = $request->safe()->notes;
         $pomo->save();
 
         return redirect()->route('pomo.index')

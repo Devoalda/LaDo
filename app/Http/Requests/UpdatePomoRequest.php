@@ -22,7 +22,9 @@ class UpdatePomoRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'pomo_start' => 'required|date_format:Y-m-d\TH:i',
+            'pomo_end' => 'required|date_format:Y-m-d\TH:i|after:pomo_start',
+            'notes' => 'nullable|string',
         ];
     }
 }

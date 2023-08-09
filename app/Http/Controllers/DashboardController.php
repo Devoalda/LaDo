@@ -21,7 +21,7 @@ class DashboardController extends Controller
             ->whereDate('due_end', '<=', strtotime('today midnight'))
             ->whereNull('completed_at')
             ->orderBy('due_end', 'asc')
-            ->paginate(5);
+            ->paginate(5, $columns = ['*'], $pageName = 'todos');
 
         $todos->transform(function ($todo) {
             return \App\Models\Todo::find($todo->id);

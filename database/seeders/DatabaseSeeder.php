@@ -14,9 +14,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
          \App\Models\User::factory(3)
-             ->has(\App\Models\Project::factory()->count(3)
-                 ->has(\App\Models\Todo::factory()->count(10)
-                     ->has(\App\Models\Pomo::factory()->count(4))
+             ->has(\App\Models\Project::factory()->count(1)
+                 ->has(\App\Models\Todo::factory()->count(5)
+                     ->has(\App\Models\Pomo::factory()->count(20))
                  ))
                 ->create();
     }

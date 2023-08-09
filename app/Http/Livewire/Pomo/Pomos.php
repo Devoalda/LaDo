@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Pomo;
 
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use App\Models\{
     Pomo,
@@ -12,26 +13,29 @@ use App\Models\{
 
 class Pomos extends Component
 {
-    public $perPage = 10;
+    public $perPage = 9;
+
+    public $listeners = [
+        'load-more' => 'loadMore',
+    ];
 
     public function loadMore()
     {
-        $this->perPage += 10;
+        $this->perPage += 9;
     }
 
 
     public function render()
     {
         $user = User::find(auth()->id());
-        $pomos = $user->pomos();
 
-        // Convert Pomos from Collection to class
-        $pomos = $pomos->map(function ($pomo) {
-            $pomo->todo = Todo::find($pomo->todo_id);
-            $pomo->project = Project::find($pomo->todo->project_id);
-            return $pomo;
-        });
-
+        $pomos = Pomo::whereHas('todo', function ($query) use ($user) {
+            $query->whereHas('project', function ($query) use ($user) {
+                $query->whereHas('user', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                });
+            });
+        })->orderBy('pomo_start', 'desc')->paginate($this->perPage);
 
         return view('livewire.pomo.pomos', [
             'pomos' => $pomos,

@@ -31,8 +31,9 @@ class PomoCRUDTest extends TestCase
 
     public function test_user_can_create_pomo(): void
     {
-        $now = now();
-        $end = now()->addMinutes(25);
+        // Time in datetime-local format
+        $now = date('Y-m-d\TH:i');
+        $end = date('Y-m-d\TH:i', strtotime('+25 minutes'));
         // Create a pomo through POST and store it in the pomo property
         $response = $this->post(route('pomo.store'), [
             'todo_id' => $this->todo->id,
@@ -64,8 +65,8 @@ class PomoCRUDTest extends TestCase
     public function test_user_can_update_pomo_with_authorsation(): void
     {
         $this->test_user_can_create_pomo();
-        $now = now();
-        $end = now()->addMinutes(25);
+        $now = date('Y-m-d\TH:i');
+        $end = date('Y-m-d\TH:i', strtotime('+25 minutes'));
         $response = $this->put(route('pomo.update', $this->pomo->id), [
             'todo_id' => $this->todo->id,
             'notes' => 'Test Notes Updated',

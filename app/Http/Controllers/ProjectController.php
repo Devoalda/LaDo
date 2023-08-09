@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\Todo;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -26,9 +27,11 @@ class ProjectController extends Controller
         $user = User::find(auth()->user()->id);
         $projects = $user->projects()->paginate(4);
         // Aggregate all todos for all projects
-        $todos = $projects->map(function ($project) {
-            return $project->todos;
-        })->flatten();
+
+        $todos = $user->todos()
+            ->map(function ($todo) {
+            return Todo::find($todo->id);
+        });
 
         if ($request->ajax()){
             $view = view('project.load-projects', compact('projects'))->render();
@@ -41,7 +44,9 @@ class ProjectController extends Controller
         return view('project.index', [
             'projects' => $projects,
             'todos' => $todos->whereNull('completed_at')->values(),
-            'completed' => $todos->whereNotNull('completed_at')->values(),
+            'completed' => $todos->whereNotNull('completed_at')
+            ->whereBetween('completed_at', [strtotime('today midnight'), strtotime('today midnight + 1 day')])
+                ->values(),
         ]);
     }
 

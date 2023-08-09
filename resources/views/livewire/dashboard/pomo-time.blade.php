@@ -11,7 +11,7 @@
                   stroke-width="2"
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
         </svg>
-        Average Pomos time spent per Project
+        Average time spent per Project
     </h3>
     <p class="text-3xl font-bold text-gray-800 dark:text-gray-100">
         {{ $ave_pomo_time }}
