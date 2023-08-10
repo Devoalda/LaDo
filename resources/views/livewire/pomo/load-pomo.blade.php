@@ -45,6 +45,12 @@
     </button>
 </div>
 
+<div wire:loading>
+    <div class="text-blue-900 dark:text-gray-100 font-bold py-2 px-4 rounded flex justify-center">
+        Loading...
+    </div>
+</div>
+
 <!-- Livewire script to trigger the load more button after user scrolls to the bottom of the page -->
 <script>
     window.onscroll = function(ev) {

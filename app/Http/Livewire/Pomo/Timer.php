@@ -15,6 +15,13 @@ class Timer extends Component
         'endBreak' => 'endBreak',
     ];
 
+    public function resetPomo()
+    {
+        $this->time = 25 * 60;
+        $this->countdown = false;
+        $this->break = false;
+    }
+
     public function endBreak($time = null)
     {
         $this->time = $time ?? $this->time;

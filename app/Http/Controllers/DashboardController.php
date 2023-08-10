@@ -38,17 +38,15 @@ class DashboardController extends Controller
         $incomplete_count = $data['incomplete_count'];
         // Convert all todo to Todo model
 
-        $projects = $this->projects();
-        $project_count = $projects['project_count'];
-        $ave_todo_count = $projects['ave_todo_count'];
+//        $projects = $this->projects();
+//        $project_count = $projects['project_count'];
+//        $ave_todo_count = $projects['ave_todo_count'];
 
         $todo_completed_count = $this->all_completed_todos()['completed_count'];
 
         return view('dashboard.index', compact(
             'todos',
             'incomplete_count',
-            'project_count',
-            'ave_todo_count',
             'todo_completed_count'
         ));
     }

@@ -10,6 +10,13 @@
             wire:click="stopTimer">
             Stop
         </button>
+
+        <button
+            class="bg-yellow-500 hover:bg-yellow-600
+            text-white font-bold py-2 px-4 rounded"
+            wire:click="resetPomo">
+            Reset
+        </button>
     </div>
 
     <div class="flex justify-center items-center mt-8">
