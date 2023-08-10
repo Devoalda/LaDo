@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Pomo;
 
+use Illuminate\View\View;
 use Livewire\Component;
 
 class Timer extends Component
@@ -42,7 +43,7 @@ class Timer extends Component
 
     public function tick(): void
     {
-        if($this->time > 0) {
+        if ($this->time > 0) {
             $this->time--;
         } else {
             $this->countdown = false;
@@ -52,12 +53,18 @@ class Timer extends Component
 
     public function mount($time = null): void
     {
-        $this->time = $time ?? $this->time;
+        $this->time = session('time') ?? $time ?? $this->time;
+        $this->countdown = false;
     }
 
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
+        // Cache time in session
+        session(['time' => $this->time]);
+        $this->time = session('time') ?? $this->time;
+
+
         return view('livewire.pomo.timer', [
             'time' => $this->time,
             'countdown' => $this->countdown,
