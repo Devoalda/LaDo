@@ -7,6 +7,8 @@
         </h2>
     </x-slot>
 
+    <livewire:pomo.timer />
+
     <livewire:pomo.pomos />
 
 </x-app-layout>
