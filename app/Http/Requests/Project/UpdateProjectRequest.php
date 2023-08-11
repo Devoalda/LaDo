@@ -13,6 +13,10 @@ class UpdateProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        if ($this->is('api/*')) {
+            return true;
+        }
+
         return auth()->check();
     }
 
