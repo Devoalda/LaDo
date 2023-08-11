@@ -15,6 +15,15 @@ class StoreTodoRequest extends FormRequest
         return auth()->check();
     }
 
+    public function prepareForValidation()
+    {
+        $this->merge([
+            'due_start' => $this->due_start ? strtotime(Carbon::parse($this->due_start)) : null,
+            'due_end' => $this->due_end ? strtotime(Carbon::parse($this->due_end)) :
+                ($this->due_start ? strtotime(Carbon::parse($this->due_start)) : null),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -25,8 +34,8 @@ class StoreTodoRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
-            'due_start' => 'nullable|date',
-            'due_end' => 'nullable|date|after_or_equal:due_start',
+            'due_start' => 'nullable',
+            'due_end' => 'nullable',
         ];
     }
 }

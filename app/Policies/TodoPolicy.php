@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Project;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
@@ -13,7 +14,7 @@ class TodoPolicy
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -21,7 +22,7 @@ class TodoPolicy
      */
     public function view(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->project->user->id;
     }
 
     /**
@@ -29,15 +30,18 @@ class TodoPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return true;
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Todo $todo): bool
+    public function update(User $user, Project $project, Todo $todo): bool
     {
-        //
+        if (!$project || $project->user->id !== $user->id || $todo->user()[0]->id !== $user->id)
+            return false;
+
+        return $user->id === $todo->project->user->id;
     }
 
     /**
@@ -45,7 +49,7 @@ class TodoPolicy
      */
     public function delete(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->project->user->id;
     }
 
     /**
@@ -53,7 +57,7 @@ class TodoPolicy
      */
     public function restore(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->project->user->id;
     }
 
     /**
@@ -61,6 +65,6 @@ class TodoPolicy
      */
     public function forceDelete(User $user, Todo $todo): bool
     {
-        //
+        return $user->id === $todo->project->user->id;
     }
 }
