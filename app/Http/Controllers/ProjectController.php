@@ -6,6 +6,8 @@ use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Models\Todo;
+use Carbon\Carbon;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -30,10 +32,10 @@ class ProjectController extends Controller
 
         $todos = $user->todos()
             ->map(function ($todo) {
-            return Todo::find($todo->id);
-        });
+                return Todo::find($todo->id);
+            });
 
-        if ($request->ajax()){
+        if ($request->ajax()) {
             $view = view('project.load-projects', compact('projects'))->render();
             return Response::json([
                 'view' => $view,
@@ -45,7 +47,7 @@ class ProjectController extends Controller
             'projects' => $projects,
             'todos' => $todos->whereNull('completed_at')->values(),
             'completed' => $todos->whereNotNull('completed_at')
-            ->whereBetween('completed_at', [strtotime('today midnight'), strtotime('today midnight + 1 day')])
+                ->whereBetween('completed_at', [strtotime('today midnight'), strtotime('today midnight + 1 day')])
                 ->values(),
         ]);
     }
@@ -63,31 +65,32 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request): RedirectResponse
     {
-        $user = User::find(auth()->user()->id);
-
         $data = $request->validated();
 
-        $user->projects()->create($data);
+        auth()->user()->projects()->create($data);
 
         return redirect()->route('project.index')
             ->with('info', 'Project created!');
     }
 
     /**
-     * TODO: Complete this method (if needed)
      * Display the specified resource.
+     * @throws AuthorizationException
      */
     public function show(Project $project): RedirectResponse
     {
+        $this->authorize('view', $project);
+
         return redirect()->route('project.index');
     }
 
     /**
-     * TODO: Complete this method (if needed)
      * Show the form for editing the specified Project.
+     * @throws AuthorizationException
      */
-    public function edit(Project $project)
+    public function edit(Project $project): View|\Illuminate\Foundation\Application|Factory|Application
     {
+        $this->authorize('view', $project);
         return view('project.edit', [
             'project' => $project,
         ]);
@@ -98,13 +101,16 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
     {
-        $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
-        $project = $projects->find($project->id);
+        $this->authorize('update', $project);
 
-        $data = $request->validated();
+        $data = $request->validatedWithCompletedAt();
 
         $project->update($data);
+
+        // Complete all todos in project
+        if ($request->has('completed_at') && $request->completed_at) {
+            $project->todos()->update(['completed_at' => Carbon::now()->timestamp]);
+        }
 
         return back()->with('info', 'Project updated!');
     }
@@ -114,9 +120,7 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
-        $project = $projects->find($project->id);
+        $this->authorize('delete', $project);
 
         $project->delete();
 

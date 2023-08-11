@@ -23,10 +23,6 @@ class UpdateTodoRequest extends FormRequest
     {
         $this->merge([
             'completed_at' => $this->completed_at ? strtotime(Carbon::parse('now')) : null,
-            'due_start' => $this->due_start ? strtotime(Carbon::parse($this->due_start)) : null,
-            'due_end' => $this->due_end ? strtotime(Carbon::parse($this->due_end)) :
-                ($this->due_start ? strtotime(Carbon::parse($this->due_start)) : null),
-
         ]);
     }
 
@@ -40,8 +36,8 @@ class UpdateTodoRequest extends FormRequest
         return [
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:255',
-            'due_start' => 'nullable',
-            'due_end' => 'nullable',
+            'due_start' => 'nullable|date',
+            'due_end' => 'nullable|date|after_or_equal:due_start',
             'completed_at' => 'nullable',
         ];
     }

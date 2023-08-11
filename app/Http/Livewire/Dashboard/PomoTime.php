@@ -28,6 +28,11 @@ class PomoTime extends Component
 
         $total_pomos = $pomos->count();
 
+        if ($total_pomos === 0) {
+            $this->ave_pomo_time = 0;
+            return;
+        }
+
         $total_time = 0;
 
         foreach ($pomos as $pomo) {

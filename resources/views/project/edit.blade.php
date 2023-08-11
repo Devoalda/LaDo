@@ -36,6 +36,18 @@
                             @enderror
                         </div>
 
+                        <!-- Completed Checkbox -->
+                        <div class="mb-4">
+                            <label for="completed_at" class="block mb-2 font-semibold">Completed</label>
+                            <input type="checkbox" name="completed_at" id="completed_at"
+                                   class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 rounded-lg w-6 h-6 p-4 @error('completed') border-red-500 @enderror"
+                                   {{ old('completed', $project->completed_at) ? 'checked' : '' }}>
+                            @error('completed')
+                            <div class="text-red-500 mt-2 text-sm">
+                                {{ $message }}
+                            </div>
+                            @enderror
+
                         </div>
 
                         <div class="flex justify-end mt-4 space-x-4">

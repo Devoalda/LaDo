@@ -19,6 +19,7 @@ class ProjectFactory extends Factory
         return [
             'name' => $this->faker->sentence(3),
             'description' => $this->faker->sentence(10),
+            'completed_at' => $this->faker->boolean(20) ? $this->faker->unixTime() : null,
         ];
     }
 }

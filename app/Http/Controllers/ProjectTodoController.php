@@ -10,7 +10,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Carbon;
 
 class ProjectTodoController extends Controller
@@ -77,8 +76,7 @@ class ProjectTodoController extends Controller
         $projects = $user->projects;
         $project = $projects->find($project_id);
 
-        if (!$project || $project->user->id !== auth()->user()->id || $todo->user()[0]->id !== auth()->user()->id)
-            return back()->with('error', 'Project/Todo not found');
+        $this->authorize('view', [Todo::class, $project, $todo]);
 
         return view('todo.show', compact('project', 'todo'));
     }
@@ -88,12 +86,9 @@ class ProjectTodoController extends Controller
      */
     public function edit($project_id, Todo $todo)
     {
-        $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
+        $projects = auth()->user()->projects;
         $project = $projects->find($project_id);
-
-        $this->authorize('update', [Todo::class, $project, $todo]);
-
+        $this->authorize('view', [Todo::class, $project, $todo]);
 
         return view('todo.edit', compact('project', 'todo'));
     }
@@ -109,6 +104,15 @@ class ProjectTodoController extends Controller
 
         // Update other fields
         $todo->fill($request->validated());
+
+        $todo->due_start = $request->due_start ?
+            strtotime(Carbon::parse($request->due_start)) :
+            ($todo->due_start ?: null);
+
+        $todo->due_end = $request->due_end ?
+            strtotime(Carbon::parse($request->due_end)) :
+            ($todo->due_end ?:
+                ($todo->due_start ? strtotime(Carbon::parse($todo->due_start)) : null));
 
 
         $todo->save();

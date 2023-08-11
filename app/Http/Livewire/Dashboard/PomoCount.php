@@ -22,7 +22,7 @@ class PomoCount extends Component
         $ave_pomo_count = $todos->avg(function ($todo) {
             return $todo->pomos->count();
         });
-        $this->ave_pomo_count = $ave_pomo_count;
+        $this->ave_pomo_count = $ave_pomo_count ?? 0;
     }
 
     public function render()
