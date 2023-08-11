@@ -19,6 +19,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable, UuidTrait;
 
     protected $table = 'users';
+    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -47,6 +48,7 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
+        'id' => 'string',
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];

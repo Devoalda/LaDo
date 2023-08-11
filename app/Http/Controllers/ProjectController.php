@@ -16,6 +16,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 
 
@@ -28,8 +29,7 @@ class ProjectController extends Controller
     {
         // Check if API Call, get userID from request
         if ($request->is('api/*')) {
-            $user = User::find($request->user_id);
-            $this->authorize('viewAny', $user);
+            $user = Auth::user();
 
             $projects = $user->projects()->paginate(4);
             return new ProjectResource($projects);

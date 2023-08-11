@@ -46,6 +46,8 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        $user->createToken('auth-token');
+
         return redirect(RouteServiceProvider::HOME);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\Auth\ApiAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,5 +20,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post('/register', [ApiAuthController::class, 'register']);
+
+Route::post('/login', [ApiAuthController::class, 'login']);
+
+
 // Resources route to /api/projects
-Route::apiResource('projects', ProjectController::class);
+Route::middleware('auth:sanctum')->group( function () {
+    Route::get('/me', [ApiAuthController::class, 'me']);
+    Route::apiResource('projects', ProjectController::class);
+});
