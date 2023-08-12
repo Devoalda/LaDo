@@ -77,7 +77,7 @@
         <!-- Completed Todos Section -->
         <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
             <h2 class="text-2xl font-semibold mb-4 text-green-500 dark:text-green-400 px-6 pt-6">
-                Completed Today ({{ $completed->count() }})
+                Completed ({{ $completed->count() }})
             </h2>
             <div class="space-y-4">
                 @foreach ($completed as $todo)
@@ -140,8 +140,16 @@
                         <p class="text-sm text-green-600">{{ $timeRemaining }} ago</p>
                         @endif
                         @endif
+
+                        <!-- Completed at time -->
+                        @if ($todo->completed_at)
+                        <!-- Print at the right side of the div -->
+                        <p class="text-sm text-gray-600 dark:text-gray-400 absolute top-0 right-0 mr-6">
+                            Completed {{ \Carbon\Carbon::parse($todo->completed_at)->diffForHumans() }}
+                        </p>
                     </div>
 
+                    @endif
                 </a>
                 @endforeach
             </div>

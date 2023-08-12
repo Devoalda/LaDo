@@ -4,13 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Project\StoreTodoRequest;
 use App\Http\Requests\Project\UpdateTodoRequest;
+use App\Http\Resources\TodoResource;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ProjectTodoController extends Controller
 {
@@ -19,13 +23,23 @@ class ProjectTodoController extends Controller
     /**
      * Display a listing of all Todos for a Project.
      */
-    public function index($project_id): Factory|Application|View|\Illuminate\Contracts\Foundation\Application|RedirectResponse
+    public function index(Request $request, $project_id):
+    Factory|Application|View|\Illuminate\Contracts\Foundation\Application|RedirectResponse|TodoResource
     {
-        $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
+        $user = Auth::user();
+        $projects = $user->projects();
         $project = $projects->find($project_id);
 
-        if (!$project || $project->user->id !== auth()->user()->id)
+        if ($request->expectsJson()) {
+            $this->authorize('viewAny', [Todo::class, $project]);
+
+            $todos = $project->todos()->paginate(4);
+
+            return new TodoResource($todos);
+        }
+
+
+        if (!$project || $project->user->id !== $user->id)
             return back()
                 ->with('error', 'Project not found');
 
@@ -43,7 +57,7 @@ class ProjectTodoController extends Controller
      */
     public function create($project_id): Factory|View|Application
     {
-        $project = auth()->user()->projects->find($project_id);
+        $project = Auth::user()->projects->find($project_id);
         return view('todo.create', [
             'project' => $project,
         ]);
@@ -52,33 +66,55 @@ class ProjectTodoController extends Controller
     /**
      * Store a newly created Todo in storage.
      */
-    public function store($project_id, StoreTodoRequest $request): RedirectResponse
+    public function store($project_id, StoreTodoRequest $request): RedirectResponse|JsonResponse
     {
-        $user = User::find(auth()->user()->id);
+        $validatedData = $request->validated();
+        $user = Auth::user();
+        $project = $user->projects->find($project_id);
+
         $this->authorize('create', [Todo::class, $user]);
 
-        $validatedData = $request->validated();
-
-        $project = $user->projects->find($project_id);
         // Add the Todo to the Project
         $project->todos()->save(new Todo($validatedData));
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Todo created successfully.',
+                'data' => $project->todos()->latest()->first(),
+            ], 201);
+        }
 
         return redirect()->route('project.todo.index', $project_id)
             ->with('success', 'Todo created successfully.');
     }
 
+
     /**
      * Display the specified resource.
      */
-    public function show($project_id, Todo $todo)
+    public function show(Request $request, $project_id)
     {
-        $user = User::find(auth()->user()->id);
-        $projects = $user->projects;
-        $project = $projects->find($project_id);
+        if ($request->expectsJson()) {
+            $user = Auth::user();
+            $project = $user->projects->find($project_id);
+            $todo = $project->todos->find($request->todo_id);
 
-        $this->authorize('view', [Todo::class, $project, $todo]);
+            $this->authorize('view', [Todo::class, $project, $todo]);
 
-        return view('todo.show', compact('project', 'todo'));
+            return response()->json([
+                'message' => 'Todo retrieved successfully.',
+                'data' => $todo,
+            ], 200);
+        }
+
+        return redirect()->route('project.todo.index', $project_id);
+//        $user = Auth::user();
+//        $projects = $user->projects;
+//        $project = $projects->find($project_id);
+//
+//        $this->authorize('view', [Todo::class, $project, $project->todos->find($request->todo_id)]);
+//
+//        return view('todo.show', compact('project', 'todo'));
     }
 
     /**
@@ -99,36 +135,48 @@ class ProjectTodoController extends Controller
     public function update($project_id, UpdateTodoRequest $request, Todo $todo)
     {
         $project = auth()->user()->projects->find($project_id);
-
         $this->authorize('update', [Todo::class, $project, $todo]);
 
         // Update other fields
         $todo->fill($request->validated());
 
-        $todo->due_start = $request->due_start ?
-            strtotime(Carbon::parse($request->due_start)) :
-            ($todo->due_start ?: null);
+        $dueStart = $request->due_start ? strtotime(Carbon::parse($request->due_start)) : null;
+        $dueEnd = $request->due_end ? strtotime(Carbon::parse($request->due_end)) : null;
 
-        $todo->due_end = $request->due_end ?
-            strtotime(Carbon::parse($request->due_end)) :
-            ($todo->due_end ?:
-                ($todo->due_start ? strtotime(Carbon::parse($todo->due_start)) : null));
+        if ($dueEnd === null && $dueStart !== null) {
+            $dueEnd = strtotime(Carbon::parse($todo->due_start));
+        }
 
+        $todo->due_start = $dueStart;
+        $todo->due_end = $dueEnd;
 
         $todo->save();
 
-        return back()
-            ->with('success', 'Todo updated successfully');
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Todo updated successfully',
+                'data' => $todo,
+            ], 200);
+        }
+
+        return back()->with('success', 'Todo updated successfully');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($project_id, Todo $todo): RedirectResponse
+    public function destroy($project_id, Request $request, Todo $todo): RedirectResponse|JsonResponse
     {
         $this->authorize('delete', [Todo::class, $todo]);
 
         $todo->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json([
+                'message' => 'Todo deleted successfully',
+            ], 200);
+        }
 
         return redirect()->route('project.todo.index', $project_id)
             ->with('success', 'Todo deleted successfully');

@@ -1,6 +1,7 @@
 @foreach($projects as $project)
 <div class="relative">
-    <a href="{{ route('project.todo.index', $project) }}" class="card-link">
+    <a href="{{ route('project.todo.index', $project->id) }}"
+       class="card-link">
         <div
             class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-6 hover:shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1">
             <div class="text-gray-800 dark:text-gray-100">

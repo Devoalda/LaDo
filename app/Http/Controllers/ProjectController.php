@@ -22,16 +22,20 @@ use Illuminate\Support\Facades\Response;
 
 class ProjectController extends Controller
 {
+    protected mixed $project_api_route_pattern = 'api/*';
     /**
      * Display Listing of all Projects.
+     * @throws AuthorizationException
      */
     public function index(Request $request): View|Factory|Application|JsonResponse|ProjectResource
     {
         // Check if API Call, get userID from request
-        if ($request->is('api/*')) {
+        if ($request->expectsJson()) {
             $user = Auth::user();
 
+            $this->authorize('viewAny', Project::class);
             $projects = $user->projects()->paginate(4);
+
             return new ProjectResource($projects);
         }
 
@@ -77,12 +81,14 @@ class ProjectController extends Controller
         $data = $request->validated();
 
         // Check if API Call, get userID from request
-        if ($request->is('api/*')) {
-            $user = User::find($request->user_id);
-            if (!$user) {
-                return response()->json(['error' => 'User not found'], 404);
-            }
+        if ($request->expectsJson()) {
+            $user = Auth::user();
+
+            $this->authorize('create', Project::class);
+
             $user->projects()->create($data);
+
+            $data = $user->projects()->latest()->first();
 
             return response()->json([
                 'message' => 'Project created successfully',
@@ -103,11 +109,8 @@ class ProjectController extends Controller
     public function show(Request $request, $project_id): RedirectResponse|JsonResponse
     {
         // Check if API Call, get userID from request
-        if ($request->is('api/*')) {
-            $user = User::find($request->user_id);
-            if (!$user) {
-                return response()->json(['error' => 'User not found'], 404);
-            }
+        if ($request->expectsJson()) {
+            $user = Auth::user();
 
             $project = $user->projects()->find($project_id);
 
@@ -116,6 +119,8 @@ class ProjectController extends Controller
                     'error' => 'Project not found',
                 ], 404);
             }
+
+            $this->authorize('view', $project);
 
             return response()->json([
                 'message' => 'Project retrieved successfully',
@@ -152,11 +157,8 @@ class ProjectController extends Controller
         $data = $request->validatedWithCompletedAt();
 
         // API Call
-        if ($request->is('api/*')) {
-            $user = User::find($request->user_id);
-            if (!$user) {
-                return response()->json(['error' => 'User not found'], 404);
-            }
+        if ($request->expectsJson()) {
+            $user = Auth::user();
 
             $project = $user->projects()->find($project_id);
 
@@ -165,6 +167,8 @@ class ProjectController extends Controller
                     'error' => 'Project not found',
                 ], 404);
             }
+
+            $this->authorize('update', $project);
 
             $project->update($data);
 
@@ -201,12 +205,8 @@ class ProjectController extends Controller
     public function destroy($project_id, Request $request): RedirectResponse|JsonResponse
     {
         // Check if API Call and $project_id is provided
-        if ($request->is('api/*')) {
-            $user_id = $request->user_id;
-            $user = User::find($user_id);
-            if (!$user) {
-                return response()->json(['error' => 'User not found'], 404);
-            }
+        if ($request->expectsJson() && $project_id) {
+            $user = Auth::user();
 
             $project = $user->projects()->find($project_id);
 
@@ -216,6 +216,8 @@ class ProjectController extends Controller
                     'data' => $request->all(),
                 ], 404);
             }
+
+            $this->authorize('delete', $project);
 
             $project->delete();
 

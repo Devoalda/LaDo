@@ -38,7 +38,8 @@ class ApiAuthController extends Controller
             return response()->json([
                 'access_token' => $token,
                 'token_type' => 'Bearer',
-            ]);
+            ], 201
+            );
         }
     }
 
@@ -52,11 +53,13 @@ class ApiAuthController extends Controller
 
         $user = User::where('email', $request['email'])->firstOrFail();
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')
+            ->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'message' => 'Login successful, please remember to logout!'
         ]);
     }
 
@@ -64,4 +67,14 @@ class ApiAuthController extends Controller
     {
         return $request->user();
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Logged out'
+        ], 200
+        );
+    }
+
 }
