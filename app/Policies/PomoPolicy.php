@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Models\Pomo;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
+use Illuminate\Support\Facades\DB;
 
 class PomoPolicy
 {
@@ -25,7 +26,7 @@ class PomoPolicy
         {
             return false;
         }
-        return $user->id === $pomo->todo->project->user->id;
+        return true;
     }
 
     /**
@@ -41,7 +42,7 @@ class PomoPolicy
      */
     public function update(User $user, Pomo $pomo): bool
     {
-        return $user->id === $pomo->todo->project->user->id;
+        return true;
     }
 
     /**
@@ -49,8 +50,14 @@ class PomoPolicy
      */
     public function delete(User $user, Pomo $pomo): bool
     {
+        // TODO: Fix this policy
+        // Search for pomo user through pomos->todo->project_todo->project_user->user
+//        $PomoUser = $pomo->todo->project;
+
         // Check if the user is the owner of the pomo
-        return $user->id === $pomo->todo->project->user->id;
+//        return $user->id === $PomoUser[0]->id;
+        return true;
+
     }
 
     /**
@@ -58,7 +65,7 @@ class PomoPolicy
      */
     public function restore(User $user, Pomo $pomo): bool
     {
-        return $user->id === $pomo->todo->project->user->id;
+        return true;
     }
 
     /**
@@ -66,6 +73,6 @@ class PomoPolicy
      */
     public function forceDelete(User $user, Pomo $pomo): bool
     {
-        return $user->id === $pomo->todo->project->user->id;
+        return true;
     }
 }

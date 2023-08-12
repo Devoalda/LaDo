@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PomoController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Http\Controllers\ProjectTodoController;
@@ -30,6 +31,8 @@ Route::post('/login', [ApiAuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group( function () {
     Route::post('/logout', [ApiAuthController::class, 'logout']);
     Route::get('/me', [ApiAuthController::class, 'me']);
+
     Route::apiResource('project', ProjectController::class);
     Route::apiResource('project.todo', ProjectTodoController::class);
+    Route::apiResource('pomo', PomoController::class);
 });

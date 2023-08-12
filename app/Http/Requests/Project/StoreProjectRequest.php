@@ -12,9 +12,9 @@ class StoreProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        if ($this->is('api/*')) {
-            return true;
-        }
+//        if ($this->expectsJson()) {
+//            return true;
+//        }
 
         return auth()->check();
     }

@@ -70,6 +70,11 @@ class User extends Authenticatable
             ->get();
     }
 
+    public function pomo(): HasManyThrough
+    {
+        return $this->hasManyThrough(Pomo::class, Todo::class);
+    }
+
     public function pomos(): Collection
     {
         return DB::table('pomos')

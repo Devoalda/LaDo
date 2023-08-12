@@ -85,6 +85,8 @@ class PomoCRUDTest extends TestCase
     public function test_user_can_delete_pomo_with_authorsation(): void
     {
         $this->test_user_can_create_pomo();
+        $this->actingAs($this->user);
+        $this->assertAuthenticated();
         $response = $this->delete(route('pomo.destroy', $this->pomo->id));
         $response->assertRedirect(route('pomo.index'));
         $this->assertDatabaseMissing('pomos', [
