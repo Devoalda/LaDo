@@ -13,13 +13,11 @@ class CompletedTodo extends Component
 
     public function mount()
     {
-        $this->todo_completed_count = DB::table('todos')
-            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
-            ->join('project_user', 'project_todo.project_id', '=', 'project_user.project_id')
-            ->where('project_user.user_id', '=', Auth::user()->id)
-            ->whereDate('due_end', '<=', strtotime('today midnight'))
-            ->whereNotNull('completed_at')
-            ->count();
+        $user = auth()->user();
+        $this->todo_completed_count = $user->projects->map(function ($project) {
+            return $project->todos->whereNotNull('completed_at')->count();
+        })->sum();
+
     }
 
     public function render()

@@ -41,12 +41,11 @@ class ProjectController extends Controller
 
         $user = User::find(auth()->user()->id);
         $projects = $user->projects()->paginate(4);
-        // Aggregate all todos for all projects
 
-        $todos = $user->todos()
-            ->map(function ($todo) {
-                return Todo::find($todo->id);
-            });
+        // Aggregate all todos for all projects
+        $todos = $user->projects->map(function ($project) {
+            return $project->todos;
+        })->flatten();
 
         if ($request->ajax()) {
             $view = view('project.load-projects', compact('projects'))->render();
@@ -60,7 +59,6 @@ class ProjectController extends Controller
             'projects' => $projects,
             'todos' => $todos->whereNull('completed_at')->values(),
             'completed' => $todos->whereNotNull('completed_at')
-                ->whereBetween('completed_at', [strtotime('today midnight'), strtotime('today midnight + 1 day')])
                 ->values(),
         ]);
     }

@@ -58,33 +58,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class, projectUser::class, 'user_id', 'project_id');
     }
 
-    public function todos(): Collection
-    {
-        return DB::table('todos')
-            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
-            ->join('projects', 'project_todo.project_id', '=', 'projects.id')
-            ->join('project_user', 'projects.id', '=', 'project_user.project_id')
-            ->join('users', 'project_user.user_id', '=', 'users.id')
-            ->where('users.id', '=', $this->id)
-            ->select('todos.*')
-            ->get();
-    }
 
     public function pomo(): HasManyThrough
     {
         return $this->hasManyThrough(Pomo::class, Todo::class);
     }
 
-    public function pomos(): Collection
-    {
-        return DB::table('pomos')
-            ->join('todos', 'pomos.todo_id', '=', 'todos.id')
-            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
-            ->join('projects', 'project_todo.project_id', '=', 'projects.id')
-            ->join('project_user', 'projects.id', '=', 'project_user.project_id')
-            ->join('users', 'project_user.user_id', '=', 'users.id')
-            ->where('users.id', '=', $this->id)
-            ->select('pomos.*')
-            ->get();
-    }
 }

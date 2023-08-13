@@ -19,12 +19,11 @@ class PomoTime extends Component
         $user = User::find(auth()->user()->id);
 
         // Get all pomos and calculate the average time spent per todo (due_end - due_start)/count/total pomos
-        $pomos = $user->pomos();
-        $pomos = $pomos->map(function ($pomo) {
-            $pomo->todo = Todo::find($pomo->todo_id);
-            $pomo->project = Project::find($pomo->todo->project_id);
-            return $pomo;
-        });
+        $pomos = $user->projects->map(function ($project) {
+            return $project->todos->map(function ($todo) {
+                return $todo->pomo;
+            });
+        })->flatten();
 
         $total_pomos = $pomos->count();
 

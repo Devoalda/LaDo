@@ -50,7 +50,10 @@ class ProjectTodoController extends Controller
             return new TodoResource($todos);
         }
 
-        $todos = $project->todos;
+        // "Todo index" shows all Todos for all Project
+        $todos = $user->projects->map(function ($project) {
+            return $project->todos;
+        })->flatten();
 
         return view('todo.index', [
             'todos' => $todos->whereNull('completed_at')->values(),

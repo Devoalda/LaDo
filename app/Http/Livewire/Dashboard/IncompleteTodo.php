@@ -12,13 +12,11 @@ class IncompleteTodo extends Component
 
     public function mount()
     {
-        $this->incomplete_count = DB::table('todos')
-            ->join('project_todo', 'todos.id', '=', 'project_todo.todo_id')
-            ->join('project_user', 'project_todo.project_id', '=', 'project_user.project_id')
-            ->where('project_user.user_id', '=', Auth::user()->id)
-            ->whereDate('due_end', '<=', strtotime('today midnight'))
-            ->whereNull('completed_at')
-            ->count();
+        $user = Auth::user();
+
+        $this->incomplete_count = $user->projects->map(function ($project) {
+            return $project->todos->where('completed_at', null)->count();
+        })->sum();
 
     }
     public function render()

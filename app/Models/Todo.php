@@ -38,19 +38,6 @@ class Todo extends Model
         "updated_at" => "integer",
     ];
 
-    public function user(): Collection
-    {
-        // Select User given Todo
-        return DB::table('users')
-            ->join('project_user', 'users.id', '=', 'project_user.user_id')
-            ->join('projects', 'project_user.project_id', '=', 'projects.id')
-            ->join('project_todo', 'projects.id', '=', 'project_todo.project_id')
-            ->join('todos', 'project_todo.todo_id', '=', 'todos.id')
-            ->where('todos.id', '=', $this->id)
-            ->select('users.*')
-            ->get();
-    }
-
     public function projects(): BelongsToMany
     {
         return $this->belongsToMany(
