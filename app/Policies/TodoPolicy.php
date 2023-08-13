@@ -5,10 +5,13 @@ namespace App\Policies;
 use App\Models\Project;
 use App\Models\Todo;
 use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
 class TodoPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
@@ -22,7 +25,8 @@ class TodoPolicy
      */
     public function view(User $user, Project $project, Todo $todo): bool
     {
-        return $user->id === $todo->project->user->id;
+        // Check if user is owner of project and todo
+        return $project->user->contains('id', $user->id) && $todo->projects->contains('id', $project->id);
     }
 
     /**
@@ -36,12 +40,11 @@ class TodoPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Project $project, Todo $todo): bool
+    public function update(User $user, Todo $todo): bool
     {
-        if (!$project || $project->user->id !== $user->id || $todo->user()[0]->id !== $user->id)
-            return false;
+        $project = $todo->projects->first();
 
-        return $user->id === $todo->project->user->id;
+        return $project->user->contains('id', $user->id) && $todo->projects->contains('id', $project->id);
     }
 
     /**
@@ -49,7 +52,9 @@ class TodoPolicy
      */
     public function delete(User $user, Todo $todo): bool
     {
-        return $user->id === $todo->project->user->id;
+        $project = $todo->projects->first();
+
+        return $project->user->contains('id', $user->id);
     }
 
     /**
@@ -57,7 +62,9 @@ class TodoPolicy
      */
     public function restore(User $user, Todo $todo): bool
     {
-        return $user->id === $todo->project->user->id;
+        $project = $todo->projects->first();
+
+        return $project->user->contains('id', $user->id);
     }
 
     /**
@@ -65,6 +72,8 @@ class TodoPolicy
      */
     public function forceDelete(User $user, Todo $todo): bool
     {
-        return $user->id === $todo->project->user->id;
+        $project = $todo->projects->first();
+
+        return $project->user->contains('id', $user->id);
     }
 }

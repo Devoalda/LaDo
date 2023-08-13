@@ -30,7 +30,7 @@ class Pomos extends Component
         $user = User::find(auth()->id());
 
         $pomos = Pomo::whereHas('todo', function ($query) use ($user) {
-            $query->whereHas('project', function ($query) use ($user) {
+            $query->whereHas('projects', function ($query) use ($user) {
                 $query->whereHas('user', function ($query) use ($user) {
                     $query->where('user_id', $user->id);
                 });

@@ -2,10 +2,11 @@
     @foreach ($pomos as $pomo)
     <div class="border rounded-lg p-4 shadow-md hover:bg-blue-100 dark:hover:bg-gray-700">
         <div class="mb-2">
-            <a href="{{ route('project.todo.edit', ['project' => $pomo->todo->project->id, 'todo' => $pomo->todo->id]) }}"
-                class="text-blue-900 dark:text-gray-100 font-bold hover:underline">
+
+            <h3
+                class="text-blue-900 dark:text-gray-100 font-bold">
                 {{ $pomo->todo->title }}
-            </a>
+            </h3>
         </div>
         <div class="mb-2 text-blue-900 dark:text-gray-100">
             <strong>Start:</strong> {{ \Carbon\Carbon::createFromTimestamp($pomo->pomo_start)->format('d/m/Y H:i') }}

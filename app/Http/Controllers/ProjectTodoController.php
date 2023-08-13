@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Project\StoreTodoRequest;
 use App\Http\Requests\Project\UpdateTodoRequest;
 use App\Http\Resources\TodoResource;
+use App\Models\Project;
 use App\Models\Todo;
 use App\Models\User;
 use Illuminate\Contracts\View\Factory;
@@ -15,6 +16,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ProjectTodoController extends Controller
 {
@@ -23,25 +25,30 @@ class ProjectTodoController extends Controller
     /**
      * Display a listing of all Todos for a Project.
      */
-    public function index(Request $request, $project_id):
-    Factory|Application|View|\Illuminate\Contracts\Foundation\Application|RedirectResponse|TodoResource
+    public function index(Request $request, $project_id): Factory|Application|View|RedirectResponse|TodoResource|JsonResponse
     {
         $user = Auth::user();
-        $projects = $user->projects();
-        $project = $projects->find($project_id);
+        $project = $user->projects()->find($project_id);
+
+        if (!$project) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Project not found',
+                ], 404);
+            }
+            return redirect()->route('project.index')
+                ->with('error', 'Project not found');
+        }
+
+        $this->authorize('view', $project);
 
         if ($request->expectsJson()) {
-            $this->authorize('viewAny', [Todo::class, $project]);
+            $this->authorize('viewAny', $project);
 
             $todos = $project->todos()->paginate(4);
 
             return new TodoResource($todos);
         }
-
-
-        if (!$project || $project->user->id !== $user->id)
-            return back()
-                ->with('error', 'Project not found');
 
         $todos = $project->todos;
 
@@ -134,8 +141,11 @@ class ProjectTodoController extends Controller
      */
     public function update($project_id, UpdateTodoRequest $request, Todo $todo)
     {
-        $project = auth()->user()->projects->find($project_id);
-        $this->authorize('update', [Todo::class, $project, $todo]);
+//        $project = auth()->user()->projects->find($project_id);
+
+        if (Gate::denies('update', $todo)) {
+            return back()->with('error', 'You are not authorized to update this todo');
+        }
 
         // Update other fields
         $todo->fill($request->validated());

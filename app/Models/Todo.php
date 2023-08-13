@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Traits\UuidTrait;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
@@ -50,9 +51,13 @@ class Todo extends Model
             ->get();
     }
 
-    public function project(): HasOneThrough
+    public function projects(): BelongsToMany
     {
-        return $this->hasOneThrough(Project::class, projectTodo::class, 'todo_id', 'id', 'id', 'project_id');
+        return $this->belongsToMany(
+            Project::class,
+            'project_todo',
+            'todo_id',
+            'project_id');
     }
 
 

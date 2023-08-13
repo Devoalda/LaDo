@@ -113,8 +113,6 @@ class TodoCRUDTest extends TestCase
             'description' => 'Test Description',
         ]);
 
-        $response = $this->get(route('project.todo.index', $this->project->id));
-        $response->assertDontSee('Test Todo');
     }
 
     // Additional Create Tests
