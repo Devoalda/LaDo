@@ -8,6 +8,7 @@ use App\Http\Resources\TodoResource;
 use App\Models\Project;
 use App\Models\Todo;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Application;
@@ -20,15 +21,20 @@ use Illuminate\Support\Facades\Gate;
 
 class ProjectTodoController extends Controller
 {
-    private string $timezone = 'Asia/Singapore';
-
     /**
      * Display a listing of all Todos for a Project.
+     * This function handles both API and non-API requests
+     * API: Returns JSON response of all Todos for a Project paginated
+     * Non-API: Returns view of all Todos for a Project
+     * @param Request $request - Request object
+     * @param $project_id - Project ID of the desired Project
+     * @return View|Factory|Application|RedirectResponse|TodoResource|JsonResponse - Returns view of all Todos for a Project or TodoResource/JSON response
+     * @throws AuthorizationException - Throws AuthorizationException if user is not authorized to view the Project
      */
     public function index(Request $request, $project_id): Factory|Application|View|RedirectResponse|TodoResource|JsonResponse
     {
         $user = Auth::user();
-        $project = $user->projects()->find($project_id);
+        $project = $user->projects->find($project_id);
 
         if (!$project) {
             if ($request->expectsJson()) {
@@ -63,7 +69,9 @@ class ProjectTodoController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new Todo for the particular Project.
+     * @param $project_id - Project ID of the desired Project
+     * @return View|Factory|Application - Returns view of create Todo form
      */
     public function create($project_id): Factory|View|Application
     {
@@ -75,6 +83,10 @@ class ProjectTodoController extends Controller
 
     /**
      * Store a newly created Todo in storage.
+     * @param $project_id - Project ID of the desired Project to store the Todo in
+     * @param StoreTodoRequest $request - StoreTodoRequest object with validation rules for Todo creation
+     * @return RedirectResponse|JsonResponse - Redirects to Todo index page or returns JSON response
+     * @throws AuthorizationException
      */
     public function store($project_id, StoreTodoRequest $request): RedirectResponse|JsonResponse
     {
@@ -100,9 +112,14 @@ class ProjectTodoController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Display the specified Todo if API request.
+     * Redirects to Todo index page if non-API request. (Shows all Todos for a Project)
+     * @param Request $request - Request object (Should contain todo_id if API request)
+     * @param $project_id - Project ID of the desired Project
+     * @return JsonResponse|RedirectResponse|View - Returns JSON response of Todo if API request or redirects to Todo index page
+     * @throws AuthorizationException - Throws AuthorizationException if user is not authorized to view the Todo
      */
-    public function show(Request $request, $project_id)
+    public function show(Request $request, $project_id): JsonResponse|RedirectResponse|View
     {
         if ($request->expectsJson()) {
             $user = Auth::user();
@@ -118,19 +135,16 @@ class ProjectTodoController extends Controller
         }
 
         return redirect()->route('project.todo.index', $project_id);
-//        $user = Auth::user();
-//        $projects = $user->projects;
-//        $project = $projects->find($project_id);
-//
-//        $this->authorize('view', [Todo::class, $project, $project->todos->find($request->todo_id)]);
-//
-//        return view('todo.show', compact('project', 'todo'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified Todo.
+     * @param $project_id - Project ID of todo to be edited
+     * @param Todo $todo - Todo to be edited
+     * @return View|Factory|Application - Returns view of edit Todo form
+     * @throws AuthorizationException - Throws AuthorizationException if user is not authorized to edit the Todo
      */
-    public function edit($project_id, Todo $todo)
+    public function edit($project_id, Todo $todo): Factory|View|Application
     {
         $projects = auth()->user()->projects;
         $project = $projects->find($project_id);
@@ -141,11 +155,13 @@ class ProjectTodoController extends Controller
 
     /**
      * Update Todo in storage based on the given project
+     * @param $project_id - Project ID of the desired Project
+     * @param UpdateTodoRequest $request - UpdateTodoRequest object with validation rules for Todo update
+     * @param Todo $todo - Todo to be updated
+     * @return RedirectResponse|JsonResponse - Redirects to Todo index page or returns JSON response
      */
-    public function update($project_id, UpdateTodoRequest $request, Todo $todo)
+    public function update($project_id, UpdateTodoRequest $request, Todo $todo): RedirectResponse|JsonResponse
     {
-//        $project = auth()->user()->projects->find($project_id);
-
         if (Gate::denies('update', $todo)) {
             return back()->with('error', 'You are not authorized to update this todo');
         }
@@ -177,7 +193,11 @@ class ProjectTodoController extends Controller
 
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified Todo from storage.
+     * @param $project_id - Project ID of the desired Project
+     * @param Request $request - Request object
+     * @param Todo $todo - Todo to be deleted
+     * @return RedirectResponse|JsonResponse - Redirects to Todo index page or returns JSON response
      */
     public function destroy($project_id, Request $request, Todo $todo): RedirectResponse|JsonResponse
     {
