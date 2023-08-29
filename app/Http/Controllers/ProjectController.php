@@ -22,9 +22,13 @@ use Illuminate\Support\Facades\Response;
 
 class ProjectController extends Controller
 {
-    protected mixed $project_api_route_pattern = 'api/*';
     /**
      * Display Listing of all Projects.
+     * This function handles both API and non-API requests
+     * API: Returns JSON response of all projects
+     * Non-API: Returns view of all projects
+     * @param Request $request - Request object
+     * @return View|Factory|Application|JsonResponse|ProjectResource - Returns view of all projects or ProjectResource/JSON response
      * @throws AuthorizationException
      */
     public function index(Request $request): View|Factory|Application|JsonResponse|ProjectResource
@@ -65,6 +69,7 @@ class ProjectController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     * @return View|\Illuminate\Foundation\Application|Factory|Application - Returns view of project create page
      */
     public function create(): View|\Illuminate\Foundation\Application|Factory|Application
     {
@@ -73,6 +78,11 @@ class ProjectController extends Controller
 
     /**
      * Store a newly created project in storage.
+     * This function handles both API and non-API requests
+     * API: Returns JSON response of project if created successfully and 201 status code (created)
+     * Non-API: Redirects to project index page if project created successfully
+     * @param StoreProjectRequest $request - Request object with validation rules for project creation
+     * @return RedirectResponse|JsonResponse - Redirects to project index page or returns JSON response
      */
     public function store(StoreProjectRequest $request): RedirectResponse|JsonResponse
     {
@@ -101,7 +111,14 @@ class ProjectController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified project.
+     * This function handles both API and non-API requests
+     * API: Returns JSON response of project
+     * Non-API: Displays project view of project
+     * @param Request $request - Request object
+     * @param $project_id - Project ID to be displayed (passed from route)
+     * @return RedirectResponse|JsonResponse -
+     * Redirects to project index page or returns JSON response
      * @throws AuthorizationException
      */
     public function show(Request $request, $project_id): RedirectResponse|JsonResponse
@@ -136,6 +153,8 @@ class ProjectController extends Controller
 
     /**
      * Show the form for editing the specified Project.
+     * @param Project $project - Project object to be edited (passed from route)
+     * @return View|\Illuminate\Foundation\Application|Factory|Application - Returns view of project edit page
      * @throws AuthorizationException
      */
     public function edit(Project $project): View|\Illuminate\Foundation\Application|Factory|Application
@@ -148,10 +167,14 @@ class ProjectController extends Controller
 
     /**
      * Update the specified Project in storage.
+     * This function handles completion toggle and/or updating of other fields
+     * @param UpdateProjectRequest $request - Request object with validation rules
+     * @param $project_id - Project ID to be updated
+     * @return RedirectResponse|JsonResponse - Redirects to previous page or returns JSON response
+     * @throws AuthorizationException
      */
     public function update(UpdateProjectRequest $request, $project_id): RedirectResponse|JsonResponse
     {
-
         $data = $request->validatedWithCompletedAt();
 
         // API Call
@@ -198,6 +221,12 @@ class ProjectController extends Controller
 
     /**
      * Remove the specified Project from storage.
+     * This function handles both API and non-API requests
+     * API: Returns JSON response of project if found and deleted
+     * Non-API: Redirects to project index page if project found and deleted
+     * @param $project_id - Project ID to be deleted (passed from route)
+     * @param Request $request - Request object
+     * @return RedirectResponse|JsonResponse - Redirects to project index page or returns JSON response
      * @throws AuthorizationException
      */
     public function destroy($project_id, Request $request): RedirectResponse|JsonResponse
